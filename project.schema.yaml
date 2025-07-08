@@ -1,0 +1,536 @@
+metadata:
+  name: "OneWorkspace"
+  version: "1.0.0"
+  description: "AI-powered workspace with mind mapping, chat, file storage, and team collaboration"
+  author: "Aaditya Dewangan"
+  license: "MIT"
+  repository: "https://github.com/username/oneworkspace"
+
+modules:
+  backend:
+    type: "nodejs-express"
+    entry: "src/server/index.ts"
+    env:
+      - "DATABASE_URL"
+      - "JWT_SECRET"
+      - "OPENAI_API_KEY"
+      - "GOOGLE_OAUTH_CLIENT_ID"
+    port: 3001
+
+  frontend:
+    type: "react-vite"
+    entry: "client/App.tsx"
+    theming: "dark/light toggle with CSS custom properties"
+    framework: "React 18 + TypeScript"
+    styling: "Tailwind CSS + Custom CSS Variables"
+    routing: "React Router v6"
+
+dataModels:
+  User:
+    id: "uuid"
+    name: "string"
+    email: "string"
+    avatarUrl: "string?"
+    avatar: "string"
+    isActive: "boolean"
+    createdAt: "datetime"
+    updatedAt: "datetime"
+
+  Project:
+    id: "uuid"
+    title: "string"
+    description: "string?"
+    ownerId: "uuid"
+    collaborators: "User[]"
+    createdAt: "datetime"
+    updatedAt: "datetime"
+
+  Chat:
+    id: "uuid"
+    projectId: "uuid"
+    title: "string"
+    messages: "Message[]"
+    isActive: "boolean"
+    createdAt: "datetime"
+
+  Message:
+    id: "uuid"
+    chatId: "uuid"
+    authorId: "uuid"
+    content: "string"
+    type: "user | ai"
+    timestamp: "datetime"
+    includesImage: "boolean?"
+    includesWeather: "boolean?"
+    weatherData: "WeatherData?"
+
+  WeatherData:
+    temperature: "number"
+    location: "string"
+    high: "number"
+    low: "number"
+    hourly: "HourlyForecast[]"
+
+  HourlyForecast:
+    time: "string"
+    temp: "number"
+    icon: "sun | cloud | rain"
+
+  MindNode:
+    id: "uuid"
+    title: "string"
+    content: "string"
+    position: "Position"
+    size: "Size"
+    color: "string"
+    tags: "string[]"
+    collaborators: "User[]"
+    breadcrumb: "string"
+    createdAt: "datetime"
+    updatedAt: "datetime"
+
+  Position:
+    x: "number"
+    y: "number"
+
+  Size:
+    width: "number"
+    height: "number"
+
+  Connection:
+    id: "uuid"
+    fromNodeId: "uuid"
+    toNodeId: "uuid"
+    fromSide: "top | bottom | left | right"
+    toSide: "top | bottom | left | right"
+
+  FileItem:
+    id: "uuid"
+    name: "string"
+    type: "string"
+    size: "string"
+    sizeBytes: "number"
+    sharedBy: "User"
+    modified: "string"
+    isAnalyzed: "boolean"
+    isAnalyzing: "boolean"
+    analysisResult: "AnalysisResult?"
+
+  AnalysisResult:
+    summary: "string[]"
+    fileType: "string"
+
+  Folder:
+    id: "uuid"
+    name: "string"
+    icon: "string"
+    count: "number"
+
+api:
+  users:
+    - path: "/api/users"
+      method: "GET"
+      output: "User[]"
+    - path: "/api/users/{userId}"
+      method: "GET"
+      output: "User"
+    - path: "/api/users/{userId}"
+      method: "PUT"
+      input: "User"
+      output: "User"
+
+  projects:
+    - path: "/api/projects"
+      method: "GET"
+      output: "Project[]"
+    - path: "/api/projects"
+      method: "POST"
+      input: "Project"
+      output: "Project"
+    - path: "/api/projects/{projectId}"
+      method: "GET"
+      output: "Project"
+
+  chats:
+    - path: "/api/projects/{projectId}/chats"
+      method: "GET"
+      output: "Chat[]"
+    - path: "/api/projects/{projectId}/chats"
+      method: "POST"
+      input: "{ title: string }"
+      output: "Chat"
+    - path: "/api/chats/{chatId}/messages"
+      method: "GET"
+      output: "Message[]"
+    - path: "/api/chats/{chatId}/messages"
+      method: "POST"
+      input: "Message"
+      output: "Message"
+
+  mindMapping:
+    - path: "/api/mind/nodes"
+      method: "GET"
+      output: "MindNode[]"
+    - path: "/api/mind/nodes"
+      method: "POST"
+      input: "MindNode"
+      output: "MindNode"
+    - path: "/api/mind/nodes/{nodeId}"
+      method: "PUT"
+      input: "MindNode"
+      output: "MindNode"
+    - path: "/api/mind/connections"
+      method: "GET"
+      output: "Connection[]"
+    - path: "/api/mind/connections"
+      method: "POST"
+      input: "Connection"
+      output: "Connection"
+
+  files:
+    - path: "/api/files"
+      method: "GET"
+      output: "FileItem[]"
+    - path: "/api/files/upload"
+      method: "POST"
+      input: "FormData"
+      output: "FileItem"
+    - path: "/api/files/{fileId}/analyze"
+      method: "POST"
+      output: "AnalysisResult"
+
+  search:
+    - path: "/api/search"
+      method: "GET"
+      params: "{ query: string, type?: string }"
+      output: "SearchResult[]"
+
+ui:
+  pages:
+    Index:
+      route: "/"
+      description: "Landing page with hero section and features"
+      components:
+        - "HeroSection"
+        - "FeatureCards"
+        - "Testimonials"
+        - "WaitlistForm"
+
+    Dashboard:
+      route: "/dashboard"
+      description: "AI command center with activity feed"
+      components:
+        - "ActivityFeed"
+        - "ProjectCards"
+        - "QuickActions"
+
+    Search:
+      route: "/search"
+      description: "Global search showcase and documentation"
+      components:
+        - "SearchShowcase"
+        - "FeatureCards"
+        - "CallToAction"
+
+    Chat:
+      route: "/chat"
+      description: "AI chat interface with message bubbles"
+      components:
+        - "MessageBubble"
+        - "WeatherCard"
+        - "CommandInput"
+
+    SocialMedia:
+      route: "/social-media"
+      description: "Social media focused chat interface"
+      components:
+        - "AiChat"
+
+    Mind:
+      route: "/mind"
+      description: "Interactive mind mapping canvas"
+      components:
+        - "MindCanvas"
+        - "MindNodeComponent"
+        - "ConnectionLine"
+        - "MindSidebar"
+        - "QuickCreateDialog"
+
+    Database:
+      route: "/mind/database"
+      description: "AI file storage board with drag & drop"
+      components:
+        - "AiFileStorageBoard"
+        - "FileGrid"
+        - "UploadZone"
+
+    Design:
+      route: "/design"
+      description: "Carousel generator and brand configuration"
+      components:
+        - "CarouselGenerator"
+        - "BrandConfig"
+
+    Calendar:
+      route: "/calendar"
+      description: "Calendar interface with booking"
+      components:
+        - "CalendarGrid"
+        - "BookingForm"
+
+    Posts:
+      route: "/posts"
+      description: "Content management with performance tracking"
+      components:
+        - "PostList"
+        - "PerformanceMetrics"
+
+    Editor:
+      route: "/editor"
+      description: "Notion-style text editor with slash commands"
+      components:
+        - "TextEditor"
+        - "SlashCommands"
+
+    Settings:
+      route: "/settings"
+      description: "Brand customization and workspace preferences"
+      components:
+        - "BrandSettings"
+        - "UserPreferences"
+
+  components:
+    layout:
+      MainLayout:
+        description: "Main application layout wrapper"
+        props:
+          children: "ReactNode"
+          aiFeed: "ActivityItem[]?"
+          setAiFeed: "function?"
+
+      OneWorkspaceSidebar:
+        description: "Application sidebar with navigation"
+        props:
+          collapsed: "boolean?"
+
+      Toolbar:
+        description: "Top toolbar with search and user actions"
+        props:
+          onCommand: "function?"
+          onOpenSearch: "function?"
+
+    search:
+      SearchCommandDrawer:
+        description: "Global search and command interface"
+        props:
+          isOpen: "boolean"
+          onClose: "function"
+        styling: "460px width, glass-morphism, dark theme"
+
+    chat:
+      AiChat:
+        description: "AI chat interface with message bubbles"
+        props:
+          messages: "Message[]?"
+          onSendMessage: "function?"
+
+      MessageBubble:
+        description: "Individual chat message component"
+        props:
+          message: "Message"
+        styling: "Rounded bubbles, user right-aligned, AI left-aligned"
+
+      WeatherCard:
+        description: "Weather information display card"
+        props:
+          temperature: "number"
+          hourlyForecast: "HourlyForecast[]"
+          highLow: "{ high: number; low: number }"
+        styling: "Blue gradient background, glass-morphism"
+
+    mindMapping:
+      MindCanvas:
+        description: "Interactive canvas for mind mapping"
+        props:
+          nodes: "MindNode[]"
+          connections: "Connection[]"
+          onNodeUpdate: "function"
+
+      MindNodeComponent:
+        description: "Individual mind map node"
+        props:
+          node: "MindNode"
+          onSelect: "function"
+          onDragStart: "function"
+          isDragging: "boolean"
+
+      ConnectionLine:
+        description: "Connection line between mind map nodes"
+        props:
+          connection: "Connection"
+          fromNode: "MindNode"
+          toNode: "MindNode"
+
+      MindSidebar:
+        description: "Node editing sidebar"
+        props:
+          node: "MindNode"
+          isOpen: "boolean"
+          onClose: "function"
+          onNodeUpdate: "function"
+
+    fileStorage:
+      AiFileStorageBoard:
+        description: "File storage interface with AI analysis"
+        props:
+          files: "FileItem[]?"
+          onUpload: "function?"
+
+    team:
+      TeamCollaboration:
+        description: "Team collaboration panel"
+        props:
+          members: "User[]"
+          onSelectMember: "function"
+
+    ui:
+      NeonCard:
+        description: "Card with neon gradient styling"
+        props:
+          loading: "boolean?"
+          variant: "default | outline"
+        styling: "Neon gradients, backdrop blur"
+
+      CommandInput:
+        description: "Command input with voice support"
+        props:
+          onCommand: "function"
+          onVoiceInput: "function?"
+          disabled: "boolean?"
+
+build:
+  packageManager: "npm"
+  commands:
+    install: "npm ci"
+    dev: "npm run dev"
+    test: "npm test"
+    build: "npm run build"
+    lint: "npm run lint"
+    typecheck: "npm run typecheck"
+
+  dependencies:
+    runtime:
+      - "react@^18.0.0"
+      - "react-router-dom@^6.0.0"
+      - "@tanstack/react-query@^4.0.0"
+      - "tailwindcss@^3.0.0"
+      - "lucide-react@^0.263.0"
+      - "sonner@^1.0.0"
+
+    development:
+      - "typescript@^5.0.0"
+      - "vite@^4.0.0"
+      - "@types/react@^18.0.0"
+      - "eslint@^8.0.0"
+      - "prettier@^3.0.0"
+
+  deploy:
+    vercel:
+      settings:
+        - "--prod"
+        - "build command: npm run build"
+        - "output directory: dist"
+
+    docker:
+      dockerfile: "./Dockerfile"
+      environment:
+        NODE_ENV: "production"
+        PORT: "3000"
+
+theming:
+  system: "CSS Custom Properties + Tailwind"
+
+  darkTheme:
+    primary: "#0D0D0D"
+    secondary: "#1A1A1A"
+    textPrimary: "#F5F5F5"
+    textSecondary: "#A0A0A0"
+    accentGreen: "#6FFFB0"
+    accentYellow: "#FFE066"
+    accentPink: "#FF69B4"
+    accentOrange: "#FFB347"
+    borderMuted: "#2E2E2E"
+    highlight: "#FFE666"
+    glassBlur: "backdrop-blur(8px) + rgba(255,255,255,0.02)"
+
+  lightTheme:
+    primary: "#FFFFFF"
+    secondary: "#F8F9FA"
+    textPrimary: "#1A1A1A"
+    textSecondary: "#6B7280"
+    accentGreen: "#10B981"
+    accentYellow: "#F59E0B"
+    accentPink: "#EC4899"
+    accentOrange: "#F97316"
+
+  fonts:
+    primary: "'Inter', 'Satoshi', system-ui, -apple-system, sans-serif"
+    mono: "'JetBrains Mono', 'Fira Code', monospace"
+
+features:
+  aiIntegration:
+    - "OpenAI GPT integration for chat"
+    - "File analysis with AI"
+    - "Smart search suggestions"
+    - "Voice command processing"
+
+  collaboration:
+    - "Real-time user presence"
+    - "Shared mind maps"
+    - "Team chat channels"
+    - "File sharing and comments"
+
+  productivity:
+    - "Global search (Cmd+K)"
+    - "Quick actions and shortcuts"
+    - "Drag & drop file management"
+    - "Calendar integration"
+
+  userExperience:
+    - "Dark/light theme toggle"
+    - "Responsive design"
+    - "Touch-friendly mobile interface"
+    - "Keyboard navigation"
+
+security:
+  authentication:
+    - "JWT-based auth"
+    - "Google OAuth integration"
+    - "Session management"
+
+  dataProtection:
+    - "HTTPS encryption"
+    - "File upload validation"
+    - "XSS protection"
+    - "CORS configuration"
+
+monitoring:
+  analytics:
+    - "User interaction tracking"
+    - "Performance metrics"
+    - "Error reporting"
+
+  logging:
+    - "Application logs"
+    - "API request logs"
+    - "Security audit logs"
+
+glossary:
+  uuid: "A universally unique identifier string (RFC 4122)"
+  datetime: "ISO-8601 timestamp format (YYYY-MM-DDTHH:mm:ss.sssZ)"
+  glassMorphism: "Background blur + translucency styling effect"
+  neonGradient: "CSS gradient with glowing neon colors"
+  mindMapping: "Visual representation of information using nodes and connections"
+  aiAssistant: "Large language model integration for intelligent responses"
+  dragAndDrop: "Interactive UI pattern for file uploads and object manipulation"
+  responsiveDesign: "Adaptive layout that works across desktop, tablet, and mobile devices"
