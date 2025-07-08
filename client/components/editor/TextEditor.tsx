@@ -184,10 +184,6 @@ export const TextEditor: React.FC = () => {
                   block.isGenerating &&
                     "bg-muted text-muted-foreground cursor-not-allowed",
                 )}
-                style={{
-                  backgroundColor: "hsl(var(--card))",
-                  color: "hsl(var(--card-foreground))",
-                }}
               />
               {block.type === "ai" && (
                 <div className="absolute top-2 right-2">
@@ -216,10 +212,6 @@ export const TextEditor: React.FC = () => {
             }}
             placeholder="Type '/' for commands..."
             className="w-full p-4 rounded-lg border border-border bg-card text-card-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-            style={{
-              backgroundColor: "hsl(var(--card))",
-              color: "hsl(var(--card-foreground))",
-            }}
           />
         </div>
 
@@ -241,8 +233,6 @@ export const TextEditor: React.FC = () => {
               style={{
                 left: menuPosition.x,
                 top: menuPosition.y,
-                backgroundColor: "hsl(var(--popover))",
-                borderColor: "hsl(var(--border))",
               }}
             >
               {filteredCommands.length > 0 ? (
@@ -250,10 +240,7 @@ export const TextEditor: React.FC = () => {
                   <button
                     key={command.label}
                     onClick={() => handleCommandSelect(command)}
-                    className="w-full px-4 py-3 text-left hover:bg-muted transition-colors flex flex-col"
-                    style={{
-                      color: "hsl(var(--popover-foreground))",
-                    }}
+                    className="w-full px-4 py-3 text-left hover:bg-muted transition-colors flex flex-col text-popover-foreground"
                   >
                     <div className="font-medium">{command.label}</div>
                     <div className="text-sm opacity-70">
@@ -262,24 +249,14 @@ export const TextEditor: React.FC = () => {
                   </button>
                 ))
               ) : (
-                <div
-                  className="px-4 py-3 text-sm opacity-70"
-                  style={{
-                    color: "hsl(var(--muted-foreground))",
-                  }}
-                >
+                <div className="px-4 py-3 text-sm opacity-70 text-muted-foreground">
                   No commands found
                 </div>
               )}
 
               {/* Keyboard hint */}
               <div className="border-t border-border mt-2 pt-2 px-4 py-2">
-                <div
-                  className="text-xs opacity-60"
-                  style={{
-                    color: "hsl(var(--muted-foreground))",
-                  }}
-                >
+                <div className="text-xs opacity-60 text-muted-foreground">
                   Press Enter to select, Esc to close
                 </div>
               </div>

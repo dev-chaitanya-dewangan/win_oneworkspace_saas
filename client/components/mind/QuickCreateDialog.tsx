@@ -62,16 +62,16 @@ export const QuickCreateDialog: React.FC<QuickCreateDialogProps> = ({
           <div className="fixed inset-0 bg-black/20 backdrop-blur-sm" />
 
           {/* Quick Create Box */}
-          <div className="relative bg-gray-800/95 backdrop-blur-sm border border-gray-600/50 rounded-xl shadow-2xl p-6 mx-4">
+          <div className="relative bg-secondary/95 backdrop-blur-sm border border-border/50 rounded-xl shadow-2xl p-6 mx-4">
             <div className="flex items-center space-x-3 mb-4">
-              <div className="p-2 bg-blue-600/20 rounded-lg">
-                <Zap className="h-5 w-5 text-blue-400" />
+              <div className="p-2 bg-primary/20 rounded-lg">
+                <Zap className="h-5 w-5 text-primary" />
               </div>
               <div>
-                <h2 className="text-lg font-semibold text-gray-100">
+                <h2 className="text-lg font-semibold text-primary">
                   Quick Create
                 </h2>
-                <p className="text-sm text-gray-400">
+                <p className="text-sm text-muted-foreground">
                   Create a new node and drop it on the canvas
                 </p>
               </div>
@@ -89,16 +89,16 @@ export const QuickCreateDialog: React.FC<QuickCreateDialogProps> = ({
               />
 
               <div className="flex items-center justify-between">
-                <div className="text-xs text-gray-500">
-                  <kbd className="px-2 py-1 bg-gray-700 rounded text-gray-300">
+                <div className="text-xs text-muted-foreground">
+                  <kbd className="px-2 py-1 bg-secondary rounded text-primary">
                     Enter
                   </kbd>{" "}
                   to create •{" "}
-                  <kbd className="px-2 py-1 bg-gray-700 rounded text-gray-300">
+                  <kbd className="px-2 py-1 bg-secondary rounded text-primary">
                     Esc
                   </kbd>{" "}
                   to cancel •{" "}
-                  <kbd className="px-2 py-1 bg-gray-700 rounded text-gray-300">
+                  <kbd className="px-2 py-1 bg-secondary rounded text-primary">
                     Ctrl+Shift+K
                   </kbd>{" "}
                   to reopen
@@ -109,7 +109,7 @@ export const QuickCreateDialog: React.FC<QuickCreateDialogProps> = ({
                     type="button"
                     variant="ghost"
                     onClick={onClose}
-                    className="text-gray-400 hover:text-gray-300 hover:bg-gray-700/50"
+                    className="text-muted-foreground hover:text-primary hover:bg-accent/50"
                   >
                     Cancel
                   </Button>
@@ -127,7 +127,7 @@ export const QuickCreateDialog: React.FC<QuickCreateDialogProps> = ({
 
             {/* Quick suggestions */}
             <div className="mt-4 pt-4 border-t border-gray-600/50">
-              <div className="text-xs text-gray-500 mb-2">
+              <div className="text-xs text-muted-foreground mb-2">
                 Quick suggestions:
               </div>
               <div className="flex flex-wrap gap-2">
@@ -141,7 +141,7 @@ export const QuickCreateDialog: React.FC<QuickCreateDialogProps> = ({
                   <button
                     key={suggestion}
                     onClick={() => setTitle(suggestion)}
-                    className="px-2 py-1 text-xs bg-gray-700/50 hover:bg-gray-700 text-gray-300 rounded transition-colors"
+                    className="px-2 py-1 text-xs bg-secondary/50 hover:bg-secondary text-primary rounded transition-colors"
                   >
                     {suggestion}
                   </button>

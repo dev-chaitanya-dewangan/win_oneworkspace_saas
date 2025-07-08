@@ -119,10 +119,10 @@ const MessageBubble = ({ message }: { message: Message }) => {
       <div className={cn("max-w-[80%]", isUser ? "order-1" : "order-2")}>
         {!isUser && (
           <div className="flex items-center space-x-2 mb-1">
-            <div className="w-6 h-6 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center">
-              <span className="text-xs font-bold text-white">✨</span>
+            <div className="w-6 h-6 rounded-full bg-gradient-to-r from-foreground to-muted flex items-center justify-center">
+              <span className="text-xs font-bold text-background">✨</span>
             </div>
-            <span className="text-xs text-gray-400">AI Assistant</span>
+            <span className="text-xs text-muted-foreground">AI Assistant</span>
           </div>
         )}
 
@@ -130,21 +130,21 @@ const MessageBubble = ({ message }: { message: Message }) => {
           className={cn(
             "rounded-xl px-4 py-3 shadow-sm",
             isUser
-              ? "bg-gray-700 text-white ml-4"
-              : "bg-gray-800 text-gray-100 mr-4",
+              ? "bg-secondary text-foreground ml-4"
+              : "bg-card text-card-foreground mr-4",
           )}
         >
           <p className="text-sm leading-relaxed">{message.content}</p>
 
           {/* Image Card */}
           {message.includesImage && !isUser && (
-            <div className="mt-3 p-3 bg-gray-750 rounded-lg border border-gray-600">
+            <div className="mt-3 p-3 bg-secondary rounded-lg border border-border">
               <img
                 src="https://via.placeholder.com/512x300/1f2937/9ca3af?text=Walter+Isaacson"
                 alt="Walter Isaacson"
                 className="w-full h-32 object-cover rounded-md mb-2"
               />
-              <p className="text-xs text-gray-400">
+              <p className="text-xs text-muted-foreground">
                 Sample document content about Walter Isaacson
               </p>
             </div>
@@ -152,21 +152,21 @@ const MessageBubble = ({ message }: { message: Message }) => {
 
           {/* Weather Card */}
           {message.includesWeather && message.weatherData && !isUser && (
-            <div className="mt-3 p-4 bg-gradient-to-r from-blue-600 to-blue-700 rounded-lg shadow-lg">
+            <div className="mt-3 p-4 bg-gradient-to-r from-secondary to-card rounded-lg shadow-lg border border-border">
               <div className="flex items-center justify-between mb-3">
                 <div>
                   <div className="flex items-center space-x-2">
                     <Sun className="h-8 w-8 text-yellow-300" />
-                    <span className="text-3xl font-bold text-white">
+                    <span className="text-3xl font-bold text-foreground">
                       {message.weatherData.temperature}°C
                     </span>
                   </div>
-                  <p className="text-blue-100 text-sm">
+                  <p className="text-muted-foreground text-sm">
                     {message.weatherData.location}
                   </p>
                 </div>
                 <div className="text-right">
-                  <p className="text-blue-100 text-sm">
+                  <p className="text-muted-foreground text-sm">
                     H:{message.weatherData.high}° L:{message.weatherData.low}°
                   </p>
                 </div>
@@ -176,18 +176,18 @@ const MessageBubble = ({ message }: { message: Message }) => {
                 {message.weatherData.hourly.map((hour, index) => (
                   <div
                     key={index}
-                    className="flex flex-col items-center space-y-1 min-w-[50px] bg-blue-500/30 rounded-lg p-2"
+                    className="flex flex-col items-center space-y-1 min-w-[50px] bg-accent/50 rounded-lg p-2"
                   >
-                    <span className="text-xs text-blue-100">{hour.time}</span>
+                    <span className="text-xs text-muted-foreground">{hour.time}</span>
                     <WeatherIcon type={hour.icon} />
-                    <span className="text-xs text-white font-medium">
+                    <span className="text-xs text-foreground font-medium">
                       {hour.temp}°
                     </span>
                   </div>
                 ))}
               </div>
 
-              <p className="text-blue-100 text-xs mt-3">
+              <p className="text-muted-foreground text-xs mt-3">
                 The weather in {message.weatherData.location} at 3 PM today will
                 be around {message.weatherData.temperature}°C.
               </p>
@@ -204,7 +204,7 @@ const MessageBubble = ({ message }: { message: Message }) => {
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="h-7 w-7 p-0 text-gray-500 hover:text-gray-300"
+                    className="h-7 w-7 p-0 text-muted-foreground hover:text-foreground"
                   >
                     <Copy className="h-3 w-3" />
                   </Button>
@@ -219,7 +219,7 @@ const MessageBubble = ({ message }: { message: Message }) => {
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="h-7 w-7 p-0 text-gray-500 hover:text-green-400"
+                    className="h-7 w-7 p-0 text-muted-foreground hover:text-foreground"
                   >
                     <ThumbsUp className="h-3 w-3" />
                   </Button>
@@ -234,7 +234,7 @@ const MessageBubble = ({ message }: { message: Message }) => {
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="h-7 w-7 p-0 text-gray-500 hover:text-red-400"
+                    className="h-7 w-7 p-0 text-muted-foreground hover:text-destructive"
                   >
                     <ThumbsDown className="h-3 w-3" />
                   </Button>
@@ -243,7 +243,7 @@ const MessageBubble = ({ message }: { message: Message }) => {
               </Tooltip>
             </TooltipProvider>
 
-            <span className="text-xs text-gray-500 ml-2">
+            <span className="text-xs text-muted-foreground ml-2">
               {message.timestamp.toLocaleTimeString([], {
                 hour: "2-digit",
                 minute: "2-digit",
@@ -255,7 +255,7 @@ const MessageBubble = ({ message }: { message: Message }) => {
         {/* Timestamp for user messages */}
         {isUser && (
           <div className="flex justify-end mr-4 mt-1">
-            <span className="text-xs text-gray-500">
+            <span className="text-xs text-muted-foreground">
               {message.timestamp.toLocaleTimeString([], {
                 hour: "2-digit",
                 minute: "2-digit",
@@ -342,30 +342,30 @@ export const AiChat = () => {
   };
 
   return (
-    <div className="flex flex-col h-full bg-black text-gray-100">
+    <div className="flex flex-col h-full bg-background text-foreground overflow-hidden">
       {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b border-gray-800">
+      <div className="flex items-center justify-between p-4 border-b border-border bg-secondary">
         <div className="flex items-center space-x-2">
-          <div className="w-8 h-8 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center">
-            <span className="text-sm font-bold text-white">✨</span>
+          <div className="w-8 h-8 rounded-full bg-gradient-to-r from-foreground to-muted flex items-center justify-center">
+            <span className="text-sm font-bold text-background">✨</span>
           </div>
-          <h2 className="text-lg font-semibold text-white">AI Assistant</h2>
+          <h2 className="text-lg font-semibold text-foreground">AI Assistant</h2>
         </div>
         <div className="flex items-center space-x-2">
-          <span className="text-xs text-gray-400">Ctrl+/</span>
-          <span className="text-xs text-gray-400">Cmd+K</span>
+          <span className="text-xs text-muted-foreground">Ctrl+/</span>
+          <span className="text-xs text-muted-foreground">Cmd+K</span>
         </div>
       </div>
 
       {/* Messages Container */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
+      <div className="flex-1 overflow-y-auto p-4 space-y-4 hide-scrollbar">
         {messages.length === 0 && isNewChat ? (
           <div className="flex items-center justify-center h-full">
-            <div className="text-center text-gray-500">
-              <div className="w-16 h-16 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center mx-auto mb-4">
-                <span className="text-2xl">✨</span>
+            <div className="text-center text-muted-foreground">
+              <div className="w-16 h-16 rounded-full bg-gradient-to-r from-foreground to-muted flex items-center justify-center mx-auto mb-4">
+                <span className="text-2xl text-background">✨</span>
               </div>
-              <h3 className="text-lg font-semibold text-gray-300 mb-2">
+              <h3 className="text-lg font-semibold text-foreground mb-2">
                 New Chat
               </h3>
               <p className="text-sm">
@@ -382,7 +382,7 @@ export const AiChat = () => {
       </div>
 
       {/* Input Bar */}
-      <div className="sticky bottom-0 p-4 border-t border-gray-800 bg-black">
+      <div className="sticky bottom-0 p-4 border-t border-border bg-background">
         <div className="flex items-center space-x-2">
           <div className="flex-1 relative">
             <Input
@@ -390,7 +390,7 @@ export const AiChat = () => {
               onChange={(e) => setInputValue(e.target.value)}
               onKeyPress={handleKeyPress}
               placeholder="Type or say your command..."
-              className="w-full bg-gray-900 border-gray-700 text-gray-100 placeholder-gray-500 pr-12 focus:border-blue-500 focus:ring-blue-500"
+              className="w-full bg-card border-border text-foreground placeholder-muted-foreground pr-12 focus:border-ring focus:ring-ring"
             />
             <Button
               variant="ghost"
@@ -398,8 +398,8 @@ export const AiChat = () => {
               className={cn(
                 "absolute right-2 top-1/2 transform -translate-y-1/2 h-7 w-7 p-0",
                 isRecording
-                  ? "text-red-400 hover:text-red-300"
-                  : "text-gray-400 hover:text-gray-300",
+                  ? "text-destructive hover:text-destructive/80"
+                  : "text-muted-foreground hover:text-foreground",
               )}
               onClick={toggleRecording}
             >
@@ -409,14 +409,14 @@ export const AiChat = () => {
           <Button
             onClick={handleSendMessage}
             disabled={!inputValue.trim()}
-            className="bg-blue-600 hover:bg-blue-700 text-white disabled:bg-gray-800 disabled:text-gray-500"
+            className="bg-foreground hover:bg-muted text-background disabled:bg-muted disabled:text-muted-foreground"
           >
             <Send className="h-4 w-4" />
           </Button>
         </div>
 
         {/* Quick Actions */}
-        <div className="flex items-center justify-center space-x-4 mt-3 text-xs text-gray-500">
+        <div className="flex items-center justify-center space-x-4 mt-3 text-xs text-muted-foreground">
           <span>💡 Pro Tips</span>
           <span>🔍 Search Pages</span>
           <span>📁 Upload & Analyze</span>

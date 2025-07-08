@@ -155,7 +155,7 @@ export const ConnectionLine: React.FC<ConnectionLineProps> = ({
                 <Button
                   variant="outline"
                   size="sm"
-                  className="h-6 w-6 p-0 bg-gray-800 border-gray-600 hover:bg-gray-700 text-gray-300"
+                  className="h-6 w-6 p-0 bg-secondary border-border hover:bg-accent text-primary"
                   onClick={(e) => {
                     e.stopPropagation();
                     // Handle connection context action

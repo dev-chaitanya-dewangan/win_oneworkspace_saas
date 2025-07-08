@@ -69,8 +69,10 @@ const Posts = () => {
         return "bg-blue-500/20 text-blue-400 border-blue-500/30";
       case "draft":
         return "bg-yellow-500/20 text-yellow-400 border-yellow-500/30";
+      case "archived":
+        return "bg-secondary/20 text-muted-foreground border-border/30";
       default:
-        return "bg-gray-500/20 text-gray-400 border-gray-500/30";
+        return "bg-secondary/20 text-muted-foreground";
     }
   };
 

@@ -167,7 +167,7 @@ export const MindNodeComponent: React.FC<MindNodeComponentProps> = ({
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="h-6 w-6 p-0 hover:bg-gray-700/50 opacity-0 group-hover:opacity-100 transition-opacity"
+                    className="h-6 w-6 p-0 hover:bg-accent/50 opacity-0 group-hover:opacity-100 transition-opacity"
                     onClick={(e) => {
                       e.stopPropagation();
                       onOpenSidebar();
@@ -184,7 +184,7 @@ export const MindNodeComponent: React.FC<MindNodeComponentProps> = ({
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="h-6 w-6 p-0 hover:bg-gray-700/50 opacity-0 group-hover:opacity-100 transition-opacity"
+                    className="h-6 w-6 p-0 hover:bg-accent/50 opacity-0 group-hover:opacity-100 transition-opacity"
                     onClick={(e) => {
                       e.stopPropagation();
                       onContextMenu(e);
@@ -212,7 +212,7 @@ export const MindNodeComponent: React.FC<MindNodeComponentProps> = ({
                 <Badge
                   key={index}
                   variant="outline"
-                  className="text-xs px-1.5 py-0.5 bg-gray-700/50 border-gray-600/50 text-gray-300"
+                  className="text-xs px-1.5 py-0.5 bg-secondary/50 border-border/50 text-primary"
                 >
                   {tag}
                 </Badge>
@@ -232,7 +232,7 @@ export const MindNodeComponent: React.FC<MindNodeComponentProps> = ({
                           "text-xs font-medium",
                           collaborator.isActive
                             ? "bg-green-600 text-white"
-                            : "bg-gray-600 text-gray-200",
+                            : "bg-secondary text-primary",
                         )}
                       >
                         {collaborator.avatar}
@@ -251,8 +251,8 @@ export const MindNodeComponent: React.FC<MindNodeComponentProps> = ({
               ))}
 
               {node.collaborators.length > 3 && (
-                <div className="h-5 w-5 bg-gray-700 border border-gray-600/50 rounded-full flex items-center justify-center">
-                  <span className="text-xs text-gray-300 font-medium">
+                <div className="h-5 w-5 bg-secondary border border-border/50 rounded-full flex items-center justify-center">
+                  <span className="text-xs text-primary font-medium">
                     +{node.collaborators.length - 3}
                   </span>
                 </div>

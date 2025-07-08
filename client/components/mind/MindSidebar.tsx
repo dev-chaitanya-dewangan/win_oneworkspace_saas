@@ -84,20 +84,20 @@ export const MindSidebar: React.FC<MindSidebarProps> = ({
     { name: "Pink", value: "pink", class: "bg-pink-500" },
     { name: "Teal", value: "teal", class: "bg-teal-500" },
     { name: "Red", value: "red", class: "bg-red-500" },
-    { name: "Gray", value: "gray", class: "bg-gray-500" },
+    { name: "Gray", value: "gray", class: "bg-muted" },
   ];
 
   return (
     <TooltipProvider>
       <div
         className={cn(
-          "fixed top-0 right-0 h-full w-96 bg-gray-800 border-l border-gray-600 shadow-xl z-50 transform transition-transform duration-300 ease-in-out",
+          "fixed top-0 right-0 h-full w-96 bg-secondary border-l border-border shadow-xl z-50 transform transition-transform duration-300 ease-in-out",
           isOpen ? "translate-x-0" : "translate-x-full",
         )}
       >
         <div className="flex flex-col h-full">
           {/* Header */}
-          <div className="flex items-center justify-between p-4 border-b border-gray-600">
+          <div className="flex items-center justify-between p-4 border-b border-border">
             <h2 className="text-lg font-semibold text-gray-100">Edit Node</h2>
             <div className="flex items-center space-x-2">
               <Tooltip>
@@ -106,7 +106,7 @@ export const MindSidebar: React.FC<MindSidebarProps> = ({
                     variant="ghost"
                     size="sm"
                     onClick={handleSave}
-                    className="h-8 w-8 p-0 hover:bg-gray-700/50 text-gray-300"
+                    className="h-8 w-8 p-0 hover:bg-accent/50 text-muted-foreground"
                   >
                     <Save className="h-4 w-4" />
                   </Button>
@@ -120,7 +120,7 @@ export const MindSidebar: React.FC<MindSidebarProps> = ({
                     variant="ghost"
                     size="sm"
                     onClick={() => console.log("Share node")}
-                    className="h-8 w-8 p-0 hover:bg-gray-700/50 text-gray-300"
+                    className="h-8 w-8 p-0 hover:bg-accent/50 text-muted-foreground"
                   >
                     <Share className="h-4 w-4" />
                   </Button>
@@ -132,7 +132,7 @@ export const MindSidebar: React.FC<MindSidebarProps> = ({
                 variant="ghost"
                 size="sm"
                 onClick={onClose}
-                className="h-8 w-8 p-0 hover:bg-gray-700/50 text-gray-300"
+                className="h-8 w-8 p-0 hover:bg-accent/50 text-muted-foreground"
               >
                 <X className="h-4 w-4" />
               </Button>
@@ -142,7 +142,7 @@ export const MindSidebar: React.FC<MindSidebarProps> = ({
           {/* Content */}
           <div className="flex-1 overflow-y-auto p-4 space-y-6">
             {/* Breadcrumb */}
-            <div className="text-sm text-gray-400">
+            <div className="text-sm text-muted-foreground">
               <span>{node.breadcrumb}</span>
             </div>
 
@@ -167,7 +167,7 @@ export const MindSidebar: React.FC<MindSidebarProps> = ({
                 onChange={(e) => setContent(e.target.value)}
                 placeholder="Enter node content..."
                 rows={6}
-                className="bg-gray-700 border-gray-600 text-gray-100 focus:border-gray-500 resize-none"
+                className="bg-secondary border-border text-primary focus:border-primary resize-none"
               />
             </div>
 
@@ -183,14 +183,14 @@ export const MindSidebar: React.FC<MindSidebarProps> = ({
                   <Badge
                     key={index}
                     variant="outline"
-                    className="bg-gray-700/50 border-gray-600/50 text-gray-300 pr-1"
+                    className="bg-secondary/50 border-border/50 text-primary pr-1"
                   >
                     {tag}
                     <Button
                       variant="ghost"
                       size="sm"
                       onClick={() => handleRemoveTag(tag)}
-                      className="h-4 w-4 p-0 ml-1 hover:bg-gray-600/50"
+                      className="h-4 w-4 p-0 ml-1 hover:bg-accent/50"
                     >
                       <X className="h-3 w-3" />
                     </Button>
@@ -204,19 +204,19 @@ export const MindSidebar: React.FC<MindSidebarProps> = ({
                   onChange={(e) => setNewTag(e.target.value)}
                   placeholder="Add tag..."
                   onKeyPress={(e) => e.key === "Enter" && handleAddTag()}
-                  className="bg-gray-700 border-gray-600 text-gray-100 focus:border-gray-500"
+                  className="bg-secondary border-border text-primary focus:border-primary"
                 />
                 <Button
                   onClick={handleAddTag}
                   size="sm"
-                  className="bg-gray-700 hover:bg-gray-600 text-gray-100"
+                  className="bg-secondary hover:bg-accent text-primary"
                 >
                   Add
                 </Button>
               </div>
             </div>
 
-            <Separator className="bg-gray-600" />
+            <Separator className="bg-border" />
 
             {/* Color Selection */}
             <div className="space-y-3">
@@ -246,7 +246,7 @@ export const MindSidebar: React.FC<MindSidebarProps> = ({
               </div>
             </div>
 
-            <Separator className="bg-gray-600" />
+            <Separator className="bg-border" />
 
             {/* Collaborators */}
             <div className="space-y-3">
@@ -259,7 +259,7 @@ export const MindSidebar: React.FC<MindSidebarProps> = ({
                 {node.collaborators.map((collaborator) => (
                   <div
                     key={collaborator.id}
-                    className="flex items-center justify-between p-2 bg-gray-700/50 rounded-lg"
+                    className="flex items-center justify-between p-2 bg-secondary/50 rounded-lg"
                   >
                     <div className="flex items-center space-x-2">
                       <Avatar className="h-6 w-6">
@@ -268,7 +268,7 @@ export const MindSidebar: React.FC<MindSidebarProps> = ({
                             "text-xs",
                             collaborator.isActive
                               ? "bg-green-600 text-white"
-                              : "bg-gray-600 text-gray-200",
+                              : "bg-secondary text-primary",
                           )}
                         >
                           {collaborator.avatar}
@@ -284,7 +284,7 @@ export const MindSidebar: React.FC<MindSidebarProps> = ({
                     <Button
                       variant="ghost"
                       size="sm"
-                      className="h-6 w-6 p-0 hover:bg-gray-600/50 text-gray-400"
+                      className="h-6 w-6 p-0 hover:bg-accent/50 text-muted-foreground"
                     >
                       <ExternalLink className="h-3 w-3" />
                     </Button>
@@ -295,14 +295,14 @@ export const MindSidebar: React.FC<MindSidebarProps> = ({
               <Button
                 variant="outline"
                 size="sm"
-                className="w-full bg-gray-700 border-gray-600 text-gray-300 hover:bg-gray-600"
+                className="w-full bg-secondary border-border text-primary hover:bg-accent"
               >
                 <Users className="h-4 w-4 mr-2" />
                 Invite Collaborator
               </Button>
             </div>
 
-            <Separator className="bg-gray-600" />
+            <Separator className="bg-border" />
 
             {/* Metadata */}
             <div className="space-y-3">
@@ -329,7 +329,7 @@ export const MindSidebar: React.FC<MindSidebarProps> = ({
           </div>
 
           {/* Footer */}
-          <div className="p-4 border-t border-gray-600">
+          <div className="p-4 border-t border-border">
             <div className="flex space-x-2">
               <Button
                 onClick={handleSave}
@@ -341,7 +341,7 @@ export const MindSidebar: React.FC<MindSidebarProps> = ({
               <Button
                 variant="outline"
                 onClick={onClose}
-                className="bg-gray-700 border-gray-600 text-gray-300 hover:bg-gray-600"
+                className="bg-secondary border-border text-primary hover:bg-accent"
               >
                 Cancel
               </Button>

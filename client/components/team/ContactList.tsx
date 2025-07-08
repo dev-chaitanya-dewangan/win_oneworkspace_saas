@@ -106,12 +106,12 @@ export const ContactList: React.FC<ContactListProps> = ({
         {/* Search Bar */}
         <div className="p-4 space-y-4">
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
               placeholder="Search contacts..."
               value={filter.searchQuery}
               onChange={(e) => onFilterChange({ searchQuery: e.target.value })}
-              className="pl-10 bg-gray-800 border-gray-600 text-gray-100 focus:border-blue-500"
+              className="pl-10 bg-secondary border-border text-primary focus:border-primary"
             />
           </div>
 
@@ -130,8 +130,8 @@ export const ContactList: React.FC<ContactListProps> = ({
                   className={cn(
                     "text-xs",
                     filter.category === filterBtn.key
-                      ? "bg-blue-600 text-white"
-                      : "bg-gray-800 border-gray-600 text-gray-300 hover:bg-gray-700",
+                      ? "bg-secondary border-border text-primary hover:bg-accent"
+                      : "bg-secondary border-border text-primary hover:bg-accent",
                   )}
                 >
                   <IconComponent className="h-3 w-3 mr-1" />
@@ -152,7 +152,7 @@ export const ContactList: React.FC<ContactListProps> = ({
               "w-full text-xs",
               filter.showFavoritesOnly
                 ? "bg-yellow-600 text-white"
-                : "bg-gray-800 border-gray-600 text-gray-300 hover:bg-gray-700",
+                : "bg-secondary border-border text-primary hover:bg-accent",
             )}
           >
             <Star
@@ -168,7 +168,7 @@ export const ContactList: React.FC<ContactListProps> = ({
         {/* Contact List */}
         <div className="flex-1 overflow-y-auto px-4 pb-4 space-y-2">
           {filteredMembers.length === 0 ? (
-            <div className="text-center py-8 text-gray-400">
+            <div className="text-center py-8 text-muted-foreground">
               <Users className="h-12 w-12 mx-auto mb-4 opacity-50" />
               <p>No contacts found</p>
               <p className="text-sm">Try adjusting your filters</p>
@@ -189,7 +189,7 @@ export const ContactList: React.FC<ContactListProps> = ({
                   {/* Avatar with Status */}
                   <div className="relative">
                     <Avatar className="h-10 w-10">
-                      <AvatarFallback className="bg-gray-600 text-gray-200 text-sm">
+                      <AvatarFallback className="bg-secondary text-primary text-sm">
                         {member.avatar}
                       </AvatarFallback>
                     </Avatar>
@@ -199,14 +199,14 @@ export const ContactList: React.FC<ContactListProps> = ({
                   {/* Member Info */}
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center space-x-2">
-                      <h4 className="text-sm font-medium text-gray-100 truncate">
+                      <h4 className="text-sm font-medium text-primary truncate">
                         {member.name}
                       </h4>
                       {member.isFavorite && (
                         <Star className="h-3 w-3 text-yellow-500 fill-current" />
                       )}
                     </div>
-                    <p className="text-xs text-gray-400 truncate">
+                    <p className="text-xs text-muted-foreground truncate">
                       {member.title} • {member.company}
                     </p>
                     <div className="flex flex-wrap gap-1 mt-1">
@@ -214,7 +214,7 @@ export const ContactList: React.FC<ContactListProps> = ({
                         <Badge
                           key={tag}
                           variant="outline"
-                          className="text-xs px-1 py-0 bg-gray-700/50 border-gray-600/50 text-gray-300"
+                          className="text-xs px-1 py-0 bg-secondary/50 border-border/50 text-primary"
                         >
                           {tag}
                         </Badge>
@@ -222,7 +222,7 @@ export const ContactList: React.FC<ContactListProps> = ({
                       {member.tags.length > 2 && (
                         <Badge
                           variant="outline"
-                          className="text-xs px-1 py-0 bg-gray-700/50 border-gray-600/50 text-gray-300"
+                          className="text-xs px-1 py-0 bg-secondary/50 border-border/50 text-primary"
                         >
                           +{member.tags.length - 2}
                         </Badge>
@@ -240,14 +240,14 @@ export const ContactList: React.FC<ContactListProps> = ({
                           e.stopPropagation();
                           onToggleFavorite(member.id);
                         }}
-                        className="h-8 w-8 p-0 hover:bg-gray-600/50"
+                        className="h-8 w-8 p-0 hover:bg-accent/50"
                       >
                         <Star
                           className={cn(
                             "h-4 w-4",
                             member.isFavorite
                               ? "text-yellow-500 fill-current"
-                              : "text-gray-400",
+                              : "text-muted-foreground",
                           )}
                         />
                       </Button>

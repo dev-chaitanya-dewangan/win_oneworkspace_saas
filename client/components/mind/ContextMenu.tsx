@@ -117,7 +117,7 @@ export const ContextMenu: React.FC<ContextMenuProps> = ({
   return (
     <div
       ref={menuRef}
-      className="fixed z-50 bg-gray-800 border border-gray-600 rounded-lg shadow-xl backdrop-blur-sm"
+      className="fixed z-50 bg-secondary border border-border rounded-lg shadow-xl backdrop-blur-sm"
       style={{
         left: adjustedPosition.x,
         top: adjustedPosition.y,
@@ -132,8 +132,8 @@ export const ContextMenu: React.FC<ContextMenuProps> = ({
             className={cn(
               "w-full flex items-center justify-between px-3 py-2 text-sm transition-colors",
               item.danger
-                ? "text-red-400 hover:bg-red-950/50 hover:text-red-300"
-                : "text-gray-300 hover:bg-gray-700/50 hover:text-white",
+                ? "text-destructive hover:bg-destructive/10 hover:text-destructive"
+                : "text-primary hover:bg-accent hover:text-accent-foreground",
             )}
             onClick={() => {
               item.action();
@@ -145,7 +145,7 @@ export const ContextMenu: React.FC<ContextMenuProps> = ({
               <span>{item.label}</span>
             </div>
             {item.shortcut && (
-              <span className="text-xs text-gray-500">{item.shortcut}</span>
+              <span className="text-xs text-muted-foreground">{item.shortcut}</span>
             )}
           </button>
         ))}

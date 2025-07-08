@@ -80,7 +80,7 @@ export const ActivityPanel: React.FC<ActivityPanelProps> = ({
       case "cancelled":
         return "text-red-400 bg-red-500/20 border-red-500/30";
       default:
-        return "text-gray-400 bg-gray-500/20 border-gray-500/30";
+        return "text-muted-foreground bg-secondary/20 border-border/30";
     }
   };
 
@@ -124,12 +124,9 @@ export const ActivityPanel: React.FC<ActivityPanelProps> = ({
 
   if (activities.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center h-full text-gray-400 p-8">
-        <Calendar className="h-16 w-16 mb-4 opacity-50" />
-        <h3 className="text-lg font-medium mb-2">No Activities</h3>
-        <p className="text-sm text-center">
-          No scheduled activities or tasks found for this team member.
-        </p>
+      <div className="flex flex-col items-center justify-center h-full text-muted-foreground p-8">
+        <Calendar className="h-12 w-12 mb-4 opacity-50" />
+        <p>No recent activity</p>
       </div>
     );
   }
@@ -138,14 +135,14 @@ export const ActivityPanel: React.FC<ActivityPanelProps> = ({
     <TooltipProvider>
       <div className="flex flex-col h-full">
         {/* Header */}
-        <div className="p-4 border-b border-gray-700">
+        <div className="p-4 border-b border-border">
           <div className="flex items-center justify-between">
-            <h3 className="text-lg font-semibold text-gray-100">
-              Activity & Events
+            <h3 className="text-lg font-semibold text-primary">
+              Recent Activity
             </h3>
             <Badge
               variant="outline"
-              className="bg-gray-700/50 border-gray-600/50 text-gray-300"
+              className="bg-secondary/50 border-border/50 text-primary"
             >
               {activities.length} items
             </Badge>
@@ -163,23 +160,23 @@ export const ActivityPanel: React.FC<ActivityPanelProps> = ({
                 key={activity.id}
                 onClick={() => handleActivityClick(activity)}
                 className={cn(
-                  "p-4 rounded-lg border transition-all hover:bg-gray-700/30",
+                  "p-4 rounded-lg border transition-all hover:bg-secondary/30",
                   activity.relatedNode
-                    ? "cursor-pointer bg-gray-800/50 border-gray-700 hover:border-gray-600"
-                    : "bg-gray-800/30 border-gray-700/50",
+                    ? "cursor-pointer bg-secondary/50 border-border hover:border-border"
+                    : "bg-secondary/30 border-border/50",
                 )}
               >
                 {/* Activity Header */}
                 <div className="flex items-start justify-between mb-3">
                   <div className="flex items-center space-x-2">
-                    <div className="p-1.5 bg-gray-700/50 rounded-lg">
-                      <ActivityIcon className="h-4 w-4 text-gray-300" />
+                    <div className="p-1.5 bg-secondary/50 rounded-lg">
+                      <ActivityIcon className="h-4 w-4 text-primary" />
                     </div>
                     <div>
-                      <h4 className="text-sm font-medium text-gray-100">
+                      <h4 className="text-sm font-medium text-primary">
                         {activity.title}
                       </h4>
-                      <p className="text-xs text-gray-400">
+                      <p className="text-xs text-muted-foreground">
                         {activity.description}
                       </p>
                     </div>
@@ -209,7 +206,7 @@ export const ActivityPanel: React.FC<ActivityPanelProps> = ({
                 {/* Activity Details */}
                 <div className="space-y-2">
                   {/* Date and Time */}
-                  <div className="flex items-center text-xs text-gray-500">
+                  <div className="flex items-center text-xs text-muted-foreground">
                     <Clock className="h-3 w-3 mr-1" />
                     {formatDate(activity.date)}
                   </div>
@@ -229,7 +226,7 @@ export const ActivityPanel: React.FC<ActivityPanelProps> = ({
                       </Badge>
                       <Badge
                         variant="outline"
-                        className="text-xs bg-gray-700/50 border-gray-600/50 text-gray-300"
+                        className="text-xs bg-secondary/50 border-border/50 text-primary"
                       >
                         {activity.category}
                       </Badge>
@@ -245,26 +242,28 @@ export const ActivityPanel: React.FC<ActivityPanelProps> = ({
                           .map((participant) => (
                             <Tooltip key={participant.id}>
                               <TooltipTrigger asChild>
-                                <Avatar className="h-6 w-6 border-2 border-gray-800">
-                                  <AvatarFallback className="text-xs bg-gray-600 text-gray-200">
+                                <Avatar className="h-6 w-6 border-2 border-border">
+                                  <AvatarFallback className="text-xs bg-secondary text-primary">
                                     {participant.avatar}
                                   </AvatarFallback>
                                 </Avatar>
                               </TooltipTrigger>
                               <TooltipContent>
-                                {participant.name}
+                                <span className="text-xs text-primary font-medium">
+                                  {participant.name}
+                                </span>
                               </TooltipContent>
                             </Tooltip>
                           ))}
                         {activity.participants.length > 4 && (
-                          <div className="h-6 w-6 bg-gray-700 border-2 border-gray-800 rounded-full flex items-center justify-center">
-                            <span className="text-xs text-gray-300 font-medium">
+                          <div className="h-6 w-6 bg-secondary border-2 border-border rounded-full flex items-center justify-center">
+                            <span className="text-xs text-muted-foreground font-medium">
                               +{activity.participants.length - 4}
                             </span>
                           </div>
                         )}
                       </div>
-                      <span className="text-xs text-gray-500">
+                      <span className="text-xs text-muted-foreground">
                         {activity.participants.length} participant
                         {activity.participants.length !== 1 ? "s" : ""}
                       </span>
@@ -273,7 +272,7 @@ export const ActivityPanel: React.FC<ActivityPanelProps> = ({
 
                   {/* Related Node Link */}
                   {activity.relatedNode && (
-                    <div className="flex items-center justify-between pt-2 border-t border-gray-700/50">
+                    <div className="flex items-center justify-between pt-2 border-t border-border/50">
                       <div className="flex items-center text-xs text-blue-400">
                         <MapPin className="h-3 w-3 mr-1" />
                         <span>Related: {activity.relatedNode.title}</span>
@@ -299,11 +298,11 @@ export const ActivityPanel: React.FC<ActivityPanelProps> = ({
         </div>
 
         {/* Footer */}
-        <div className="p-4 border-t border-gray-700">
+        <div className="p-4 border-t border-border">
           <Button
             variant="outline"
             size="sm"
-            className="w-full bg-gray-800 border-gray-600 text-gray-300 hover:bg-gray-700"
+            className="w-full bg-secondary border-border text-primary hover:bg-accent"
             onClick={() => console.log("View all activities")}
           >
             <Calendar className="h-4 w-4 mr-2" />

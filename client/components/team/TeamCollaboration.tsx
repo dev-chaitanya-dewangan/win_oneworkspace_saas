@@ -198,12 +198,12 @@ export const TeamCollaboration: React.FC<TeamCollaborationProps> = ({
     <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm">
       <div className="flex h-full">
         {/* Main Collaboration Panel */}
-        <div className="bg-gray-900 border-r border-gray-700 flex flex-col w-full max-w-6xl mx-auto shadow-2xl">
+        <div className="bg-secondary border-r border-border flex flex-col w-full max-w-6xl mx-auto shadow-2xl">
           {/* Header */}
-          <div className="flex items-center justify-between p-4 border-b border-gray-700">
+          <div className="flex items-center justify-between p-4 border-b border-border">
             <div className="flex items-center space-x-3">
               <Users className="h-6 w-6 text-blue-400" />
-              <h2 className="text-xl font-semibold text-gray-100">
+              <h2 className="text-xl font-semibold text-primary">
                 Team Collaboration
               </h2>
             </div>
@@ -211,7 +211,7 @@ export const TeamCollaboration: React.FC<TeamCollaborationProps> = ({
               variant="ghost"
               size="sm"
               onClick={onClose}
-              className="text-gray-400 hover:text-gray-200"
+              className="text-muted-foreground hover:text-primary"
             >
               <X className="h-5 w-5" />
             </Button>

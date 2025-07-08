@@ -171,7 +171,7 @@ const DynamicIsland = () => {
           {/* Design Principles */}
           <div className="metallic-base rounded-2xl p-8">
             <h2 className="text-2xl font-bold text-white mb-6 flex items-center">
-              <Settings className="h-6 w-6 mr-3 text-gray-400" />
+              <Settings className="h-6 w-6 mr-3 text-muted-foreground" />
               Design System
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">

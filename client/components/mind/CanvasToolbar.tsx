@@ -39,7 +39,7 @@ export const CanvasToolbar: React.FC<CanvasToolbarProps> = ({
     <TooltipProvider>
       <div className="absolute top-4 right-4 z-40 flex flex-col space-y-2">
         {/* Zoom Controls */}
-        <div className="bg-gray-800/90 backdrop-blur-sm border border-gray-600/50 rounded-lg p-2 shadow-lg">
+        <div className="bg-secondary/90 backdrop-blur-sm border border-border/50 rounded-lg p-2 shadow-lg">
           <div className="flex flex-col space-y-1">
             <Tooltip>
               <TooltipTrigger asChild>
@@ -85,7 +85,7 @@ export const CanvasToolbar: React.FC<CanvasToolbarProps> = ({
         </div>
 
         {/* Navigation Controls */}
-        <div className="bg-gray-800/90 backdrop-blur-sm border border-gray-600/50 rounded-lg p-2 shadow-lg">
+        <div className="bg-secondary/90 backdrop-blur-sm border border-border/50 rounded-lg p-2 shadow-lg">
           <div className="flex flex-col space-y-1">
             <Tooltip>
               <TooltipTrigger asChild>
@@ -122,7 +122,7 @@ export const CanvasToolbar: React.FC<CanvasToolbarProps> = ({
         </div>
 
         {/* Additional Tools */}
-        <div className="bg-gray-800/90 backdrop-blur-sm border border-gray-600/50 rounded-lg p-2 shadow-lg">
+        <div className="bg-secondary/90 backdrop-blur-sm border border-border/50 rounded-lg p-2 shadow-lg">
           <div className="flex flex-col space-y-1">
             <Tooltip>
               <TooltipTrigger asChild>

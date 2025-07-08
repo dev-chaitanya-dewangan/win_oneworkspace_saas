@@ -38,6 +38,9 @@ import {
   X,
   Undo,
   GripVertical,
+  Share,
+  Trash2,
+  Menu,
 } from "lucide-react";
 
 interface FileItem {
@@ -203,6 +206,7 @@ export const AiFileStorageBoard = () => {
   const [draggedFileId, setDraggedFileId] = React.useState<string | null>(null);
   const [searchQuery, setSearchQuery] = React.useState("");
   const [expandedFile, setExpandedFile] = React.useState<string | null>(null);
+  const [showMobileMenu, setShowMobileMenu] = React.useState(false);
   const { toast } = useToast();
 
   const handleDragOver = (e: React.DragEvent) => {
@@ -438,20 +442,20 @@ export const AiFileStorageBoard = () => {
 
   return (
     <div
-      className="h-full w-full bg-[#0B0B0B] text-white overflow-hidden flex flex-col"
+      className="h-full w-full bg-background text-foreground overflow-hidden flex flex-col"
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
     >
       {/* Drag IN Overlay */}
       {isDragOver && (
-        <div className="absolute inset-0 bg-blue-500/20 border-2 border-blue-500 border-dashed z-50 flex items-center justify-center">
+        <div className="absolute inset-0 bg-foreground/20 border-2 border-foreground border-dashed z-50 flex items-center justify-center">
           <div className="text-center">
-            <Upload className="h-12 w-12 text-blue-400 mx-auto mb-4" />
-            <p className="text-xl font-semibold text-blue-400">
+            <Upload className="h-12 w-12 text-foreground mx-auto mb-4" />
+            <p className="text-xl font-semibold text-foreground">
               Drop files here to upload
             </p>
-            <p className="text-blue-300">
+            <p className="text-muted-foreground">
               Files will be automatically added to your storage
             </p>
           </div>
@@ -460,55 +464,63 @@ export const AiFileStorageBoard = () => {
 
       {/* Drag OUT Overlay */}
       {isDraggingOut && (
-        <div className="absolute inset-0 bg-green-500/20 border-2 border-green-500 border-dashed z-40 flex items-center justify-center pointer-events-none">
+        <div className="absolute inset-0 bg-foreground/20 border-2 border-foreground border-dashed z-40 flex items-center justify-center pointer-events-none">
           <div className="text-center">
-            <Download className="h-12 w-12 text-green-400 mx-auto mb-4" />
-            <p className="text-xl font-semibold text-green-400">
+            <Download className="h-12 w-12 text-foreground mx-auto mb-4" />
+            <p className="text-xl font-semibold text-foreground">
               Drag to external location
             </p>
-            <p className="text-green-300">Drop outside to export file</p>
+            <p className="text-muted-foreground">Drop outside to export file</p>
           </div>
         </div>
       )}
 
       {/* Top Bar */}
-      <div className="flex items-center justify-between p-6 border-b border-gray-800">
-        <div className="flex items-center space-x-4">
-          <h1 className="text-2xl font-bold text-white">
+      <div className="flex items-center justify-between p-4 lg:p-6 border-b border-border bg-secondary">
+        <div className="flex items-center space-x-2 lg:space-x-4">
+          <Button
+            variant="ghost"
+            size="sm"
+            className="lg:hidden text-foreground hover:bg-accent"
+            onClick={() => setShowMobileMenu(!showMobileMenu)}
+          >
+            <Menu className="h-5 w-5" />
+          </Button>
+          <h1 className="text-lg lg:text-2xl font-bold text-foreground truncate">
             AI File Storage Board
           </h1>
-          <Badge variant="outline" className="text-gray-400 border-gray-600">
+          <Badge variant="outline" className="text-muted-foreground border-border hidden sm:inline-flex">
             {files.length} files
           </Badge>
         </div>
 
-        <div className="flex items-center space-x-3">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+        <div className="flex items-center space-x-2 lg:space-x-3">
+          <div className="relative hidden sm:block">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
               placeholder="Search files..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10 w-64 bg-gray-900 border-gray-700 text-white placeholder-gray-500"
+              className="pl-10 w-48 lg:w-64 bg-card border-border text-foreground placeholder-muted-foreground"
             />
           </div>
 
-          <Button className="bg-blue-600 hover:bg-blue-700">
+          <Button className="bg-foreground hover:bg-muted text-background hidden sm:inline-flex">
             <Plus className="h-4 w-4 mr-2" />
-            Create
+            <span className="hidden lg:inline">Create</span>
           </Button>
 
           <Button
             variant="outline"
-            className="border-gray-700 text-gray-300 hover:bg-gray-800"
+            className="border-border text-foreground hover:bg-accent hidden sm:inline-flex"
           >
             <Upload className="h-4 w-4 mr-2" />
-            Upload
+            <span className="hidden lg:inline">Upload</span>
           </Button>
 
           <Button
             variant="outline"
-            className="border-gray-700 text-gray-300 hover:bg-gray-800"
+            className="border-border text-foreground hover:bg-accent hidden lg:inline-flex"
           >
             <UserPlus className="h-4 w-4 mr-2" />
             Invite
@@ -516,31 +528,59 @@ export const AiFileStorageBoard = () => {
         </div>
       </div>
 
+      {/* Mobile Search Bar */}
+      <div className="sm:hidden p-4 border-b border-border bg-secondary">
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder="Search files..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-10 w-full bg-card border-border text-foreground placeholder-muted-foreground"
+          />
+        </div>
+      </div>
+
+      {/* Mobile Action Buttons */}
+      <div className="sm:hidden flex items-center justify-between p-4 border-b border-border bg-secondary">
+        <Button className="bg-foreground hover:bg-muted text-background flex-1 mr-2">
+          <Plus className="h-4 w-4 mr-2" />
+          Create
+        </Button>
+        <Button
+          variant="outline"
+          className="border-border text-foreground hover:bg-accent flex-1"
+        >
+          <Upload className="h-4 w-4 mr-2" />
+          Upload
+        </Button>
+      </div>
+
       {/* Folder Navigation */}
-      <div className="p-6 border-b border-gray-800">
+      <div className="p-4 lg:p-6 border-b border-border bg-secondary">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold text-white">Folders</h2>
+          <h2 className="text-base lg:text-lg font-semibold text-foreground">Folders</h2>
           <Button
             variant="ghost"
             size="sm"
-            className="text-gray-400 hover:text-white"
+            className="text-muted-foreground hover:text-foreground"
           >
             <Plus className="h-4 w-4 mr-1" />
-            Add Folder
+            <span className="hidden sm:inline">Add Folder</span>
           </Button>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-5 lg:grid-cols-10 gap-3">
+        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-10 gap-2 lg:gap-3">
           {folders.map((folder) => (
             <div
               key={folder.id}
-              className="flex flex-col items-center p-3 rounded-lg bg-gray-900 hover:bg-gray-800 cursor-pointer transition-colors group"
+              className="flex flex-col items-center p-2 lg:p-3 rounded-lg bg-card hover:bg-accent cursor-pointer transition-colors group"
             >
-              <folder.icon className="h-8 w-8 text-yellow-500 mb-2 group-hover:text-yellow-400" />
-              <span className="text-xs text-center text-gray-300 group-hover:text-white truncate w-full">
+              <folder.icon className="h-6 w-6 lg:h-8 lg:w-8 text-foreground mb-1 lg:mb-2 group-hover:text-muted-foreground" />
+              <span className="text-xs text-center text-foreground group-hover:text-muted-foreground truncate w-full">
                 {folder.name}
               </span>
-              <span className="text-xs text-gray-500 mt-1">{folder.count}</span>
+              <span className="text-xs text-muted-foreground mt-1">{folder.count}</span>
             </div>
           ))}
         </div>
@@ -548,13 +588,16 @@ export const AiFileStorageBoard = () => {
 
       {/* File Table */}
       <div className="flex-1 overflow-hidden flex flex-col">
-        <div className="flex items-center justify-between p-6 pb-4">
-          <div className="flex items-center space-x-4">
-            <h2 className="text-lg font-semibold text-white">Your Files</h2>
-            <div className="flex items-center space-x-2 text-sm text-gray-400">
-              <span>Recent</span>
-              <span>•</span>
-              <span>Starred</span>
+        <div className="flex items-center justify-between p-4 lg:p-6 pb-4">
+          <div className="flex items-center space-x-2 lg:space-x-4">
+            <h2 className="text-base lg:text-lg font-semibold text-foreground">Your Files</h2>
+            <div className="hidden sm:flex items-center space-x-2 text-sm text-muted-foreground">
+              <span>Sort by:</span>
+              <select className="bg-transparent border-none text-muted-foreground focus:outline-none">
+                <option>Name</option>
+                <option>Date</option>
+                <option>Size</option>
+              </select>
             </div>
           </div>
 
@@ -562,18 +605,18 @@ export const AiFileStorageBoard = () => {
             <Button
               variant="ghost"
               size="sm"
-              className="text-gray-400 hover:text-white"
+              className="text-muted-foreground hover:text-foreground"
             >
               <Filter className="h-4 w-4 mr-1" />
-              Filter
+              <span className="hidden sm:inline">Filter</span>
             </Button>
           </div>
         </div>
 
-        <div className="flex-1 overflow-auto">
+        <div className="flex-1 overflow-auto hide-scrollbar">
           <div className="min-w-full">
-            {/* Table Header */}
-            <div className="grid grid-cols-12 gap-4 px-6 py-3 border-b border-gray-800 text-sm font-medium text-gray-400">
+            {/* Table Header - Hidden on mobile */}
+            <div className="hidden sm:grid grid-cols-12 gap-4 px-4 lg:px-6 py-3 border-b border-border text-sm font-medium text-muted-foreground">
               <div className="col-span-1">
                 <Checkbox
                   checked={
@@ -596,16 +639,17 @@ export const AiFileStorageBoard = () => {
                 const isExpanded = expandedFile === file.id;
 
                 return (
-                  <div key={file.id} className="border-b border-gray-800/50">
+                  <div key={file.id} className="border-b border-border/50">
+                    {/* Desktop Row */}
                     <div
                       draggable
                       onDragStart={(e) => handleFileDragStart(e, file)}
                       onDragEnd={handleFileDragEnd}
                       className={cn(
-                        "grid grid-cols-12 gap-4 px-6 py-4 hover:bg-gray-900/50 transition-colors items-center cursor-move",
-                        selectedFiles.includes(file.id) && "bg-gray-900/30",
+                        "hidden sm:grid grid-cols-12 gap-4 px-4 lg:px-6 py-4 hover:bg-accent/50 transition-colors items-center cursor-move",
+                        selectedFiles.includes(file.id) && "bg-accent/30",
                         draggedFileId === file.id &&
-                          "opacity-50 bg-green-900/30",
+                          "opacity-50 bg-destructive/30",
                       )}
                     >
                       <div className="col-span-1">
@@ -619,19 +663,19 @@ export const AiFileStorageBoard = () => {
                         <TooltipProvider>
                           <Tooltip>
                             <TooltipTrigger asChild>
-                              <GripVertical className="h-4 w-4 text-gray-600 hover:text-gray-400 flex-shrink-0 cursor-move" />
+                              <GripVertical className="h-4 w-4 text-muted-foreground hover:text-foreground flex-shrink-0 cursor-move" />
                             </TooltipTrigger>
                             <TooltipContent>
                               <p>Drag to export file</p>
                             </TooltipContent>
                           </Tooltip>
                         </TooltipProvider>
-                        <FileIcon className="h-5 w-5 text-blue-400 flex-shrink-0" />
+                        <FileIcon className="h-5 w-5 text-foreground flex-shrink-0" />
                         <div className="flex-1 min-w-0">
-                          <p className="text-white font-medium truncate">
+                          <p className="text-foreground font-medium truncate">
                             {file.name}
                           </p>
-                          <p className="text-xs text-gray-500">{file.type}</p>
+                          <p className="text-xs text-muted-foreground">{file.type}</p>
                         </div>
 
                         {/* AI Analysis Button */}
@@ -639,7 +683,7 @@ export const AiFileStorageBoard = () => {
                           <Button
                             variant="ghost"
                             size="sm"
-                            className="h-7 w-7 p-0 text-gray-400 hover:text-white flex-shrink-0"
+                            className="h-7 w-7 p-0 text-muted-foreground hover:text-foreground flex-shrink-0"
                             onClick={() => startAnalysis(file.id)}
                           >
                             <Sparkles className="h-4 w-4" />
@@ -665,23 +709,23 @@ export const AiFileStorageBoard = () => {
 
                       <div className="col-span-2 flex items-center space-x-2">
                         <Avatar className="h-6 w-6">
-                          <AvatarFallback className="text-xs bg-gray-700 text-gray-300">
+                          <AvatarFallback className="text-xs bg-card text-foreground">
                             {file.sharedBy.avatar}
                           </AvatarFallback>
                         </Avatar>
-                        <span className="text-gray-300 text-sm truncate">
+                        <span className="text-foreground text-sm truncate">
                           {file.sharedBy.name}
                         </span>
                       </div>
 
                       <div className="col-span-2">
-                        <span className="text-gray-300 text-sm">
+                        <span className="text-foreground text-sm">
                           {file.size}
                         </span>
                       </div>
 
                       <div className="col-span-2">
-                        <span className="text-gray-400 text-sm">
+                        <span className="text-muted-foreground text-sm">
                           {file.modified}
                         </span>
                       </div>
@@ -692,23 +736,24 @@ export const AiFileStorageBoard = () => {
                             <Button
                               variant="ghost"
                               size="sm"
-                              className="h-7 w-7 p-0 text-gray-400 hover:text-white"
+                              className="h-7 w-7 p-0 text-muted-foreground hover:text-foreground"
                             >
                               <MoreHorizontal className="h-4 w-4" />
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent
-                            align="end"
-                            className="bg-gray-800 border-gray-700"
+                            className="bg-card border-border"
                           >
-                            <DropdownMenuItem className="text-gray-300 hover:bg-gray-700">
+                            <DropdownMenuItem className="text-foreground hover:bg-accent">
                               <Download className="h-4 w-4 mr-2" />
                               Download
                             </DropdownMenuItem>
-                            <DropdownMenuItem className="text-gray-300 hover:bg-gray-700">
+                            <DropdownMenuItem className="text-foreground hover:bg-accent">
+                              <Share className="h-4 w-4 mr-2" />
                               Share
                             </DropdownMenuItem>
-                            <DropdownMenuItem className="text-red-400 hover:bg-gray-700">
+                            <DropdownMenuItem className="text-destructive hover:bg-destructive/10">
+                              <Trash2 className="h-4 w-4 mr-2" />
                               Delete
                             </DropdownMenuItem>
                           </DropdownMenuContent>
@@ -716,26 +761,126 @@ export const AiFileStorageBoard = () => {
                       </div>
                     </div>
 
+                    {/* Mobile Row */}
+                    <div
+                      draggable
+                      onDragStart={(e) => handleFileDragStart(e, file)}
+                      onDragEnd={handleFileDragEnd}
+                      className={cn(
+                        "sm:hidden p-4 hover:bg-accent/50 transition-colors cursor-move",
+                        selectedFiles.includes(file.id) && "bg-accent/30",
+                        draggedFileId === file.id &&
+                          "opacity-50 bg-destructive/30",
+                      )}
+                    >
+                      <div className="flex items-center space-x-3 mb-3">
+                        <Checkbox
+                          checked={selectedFiles.includes(file.id)}
+                          onCheckedChange={() => handleFileSelect(file.id)}
+                        />
+                        <FileIcon className="h-5 w-5 text-foreground flex-shrink-0" />
+                        <div className="flex-1 min-w-0">
+                          <p className="text-foreground font-medium truncate">
+                            {file.name}
+                          </p>
+                          <p className="text-xs text-muted-foreground">{file.type}</p>
+                        </div>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-7 w-7 p-0 text-muted-foreground hover:text-foreground"
+                            >
+                              <MoreHorizontal className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent
+                            className="bg-card border-border"
+                          >
+                            <DropdownMenuItem className="text-foreground hover:bg-accent">
+                              <Download className="h-4 w-4 mr-2" />
+                              Download
+                            </DropdownMenuItem>
+                            <DropdownMenuItem className="text-foreground hover:bg-accent">
+                              <Share className="h-4 w-4 mr-2" />
+                              Share
+                            </DropdownMenuItem>
+                            <DropdownMenuItem className="text-destructive hover:bg-destructive/10">
+                              <Trash2 className="h-4 w-4 mr-2" />
+                              Delete
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </div>
+
+                      <div className="flex items-center justify-between text-sm">
+                        <div className="flex items-center space-x-2">
+                          <Avatar className="h-5 w-5">
+                            <AvatarFallback className="text-xs bg-card text-foreground">
+                              {file.sharedBy.avatar}
+                            </AvatarFallback>
+                          </Avatar>
+                          <span className="text-muted-foreground">{file.sharedBy.name}</span>
+                        </div>
+                        <div className="flex items-center space-x-3">
+                          <span className="text-muted-foreground">{file.size}</span>
+                          <span className="text-muted-foreground text-xs">{file.modified}</span>
+                        </div>
+                      </div>
+
+                      {/* Mobile AI Analysis */}
+                      <div className="flex items-center justify-between mt-3">
+                        {!file.isAnalyzed && !file.isAnalyzing && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="text-muted-foreground hover:text-foreground"
+                            onClick={() => startAnalysis(file.id)}
+                          >
+                            <Sparkles className="h-4 w-4 mr-2" />
+                            Analyze
+                          </Button>
+                        )}
+
+                        {file.isAnalyzing && (
+                          <Badge
+                            variant="outline"
+                            className="text-yellow-400 border-yellow-400"
+                          >
+                            Analyzing...
+                          </Badge>
+                        )}
+
+                        {file.isAnalyzed && (
+                          <Badge className="bg-green-600 text-white">
+                            <Check className="h-3 w-3 mr-1" />
+                            Analyzed
+                          </Badge>
+                        )}
+                      </div>
+                    </div>
+
                     {/* Analysis Results Expansion */}
                     {file.isAnalyzed && file.analysisResult && isExpanded && (
-                      <div className="px-6 pb-4 bg-gray-900/30 border-t border-gray-800">
+                      <div className="px-4 lg:px-6 pb-4 bg-accent/30 border-t border-border">
                         <div className="flex items-start space-x-4 pt-4">
                           <div className="flex-shrink-0">
-                            <FileIcon className="h-12 w-12 text-blue-400" />
+                            <FileIcon className="h-12 w-12 text-foreground" />
                           </div>
 
                           <div className="flex-1">
-                            <h3 className="text-white font-medium mb-2">
+                            <h3 className="text-foreground font-medium mb-2">
                               {file.analysisResult.fileType} Analysis
                             </h3>
-                            <ul className="space-y-1 text-sm text-gray-300 mb-4">
+                            <ul className="space-y-1 text-sm text-muted-foreground mb-4">
                               {file.analysisResult.summary.map(
                                 (point, index) => (
                                   <li
                                     key={index}
                                     className="flex items-start space-x-2"
                                   >
-                                    <span className="text-blue-400 mt-1">
+                                    <span className="text-foreground mt-1">
                                       •
                                     </span>
                                     <span>{point}</span>
@@ -744,10 +889,10 @@ export const AiFileStorageBoard = () => {
                               )}
                             </ul>
 
-                            <div className="flex items-center space-x-3">
+                            <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-2 sm:space-y-0 sm:space-x-3">
                               <Button
                                 size="sm"
-                                className="bg-blue-600 hover:bg-blue-700"
+                                className="bg-foreground hover:bg-muted text-background"
                               >
                                 <Check className="h-4 w-4 mr-1" />
                                 Mark Reviewed
@@ -755,7 +900,7 @@ export const AiFileStorageBoard = () => {
                               <Button
                                 variant="outline"
                                 size="sm"
-                                className="border-gray-600 text-gray-300 hover:bg-gray-800"
+                                className="border-border text-muted-foreground hover:bg-accent"
                               >
                                 <Download className="h-4 w-4 mr-1" />
                                 Download Insights
@@ -763,7 +908,7 @@ export const AiFileStorageBoard = () => {
                               <Button
                                 variant="ghost"
                                 size="sm"
-                                className="text-gray-400 hover:text-white"
+                                className="text-muted-foreground hover:text-foreground"
                                 onClick={() => setExpandedFile(null)}
                               >
                                 <X className="h-4 w-4" />

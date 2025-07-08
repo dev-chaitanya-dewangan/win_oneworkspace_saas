@@ -252,7 +252,7 @@ export const MindCanvas: React.FC<MindCanvasProps> = ({
   }, []);
 
   return (
-    <div className="relative w-full h-full overflow-hidden bg-gray-950">
+    <div className="relative w-full h-full overflow-hidden bg-primary">
       {/* Canvas Toolbar */}
       <CanvasToolbar
         viewport={viewport}
@@ -332,13 +332,8 @@ export const MindCanvas: React.FC<MindCanvasProps> = ({
         >
           {/* Grid Background */}
           <div
-            className="absolute inset-0 opacity-20"
+            className="absolute inset-0 opacity-20 grid-pattern"
             style={{
-              backgroundImage: `
-                radial-gradient(circle, #374151 1px, transparent 1px)
-              `,
-              backgroundSize: "20px 20px",
-              backgroundPosition: "0 0",
               width: "5000px",
               height: "5000px",
               left: "-2500px",

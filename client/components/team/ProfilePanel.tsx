@@ -26,6 +26,9 @@ import {
   User,
   Star,
   Clock,
+  Video,
+  Users,
+  Settings,
 } from "lucide-react";
 
 interface ProfilePanelProps {
@@ -42,13 +45,9 @@ export const ProfilePanel: React.FC<ProfilePanelProps> = ({
 }) => {
   if (!member) {
     return (
-      <div className="flex flex-col items-center justify-center h-full text-gray-400 p-8">
-        <User className="h-16 w-16 mb-4 opacity-50" />
-        <h3 className="text-lg font-medium mb-2">Select a Contact</h3>
-        <p className="text-sm text-center">
-          Choose a team member from the contact list to view their profile and
-          details.
-        </p>
+      <div className="flex flex-col items-center justify-center h-full text-muted-foreground p-8">
+        <User className="h-12 w-12 mb-4 opacity-50" />
+        <p>Select a team member to view their profile</p>
       </div>
     );
   }
@@ -111,8 +110,8 @@ export const ProfilePanel: React.FC<ProfilePanelProps> = ({
           <div className="flex items-start space-x-4">
             <div className="relative">
               <Avatar className="h-20 w-20">
-                <AvatarFallback className="bg-gray-600 text-gray-200 text-xl">
-                  {member.avatar}
+                <AvatarFallback className="bg-secondary text-primary text-xl">
+                  {member.name.charAt(0)}
                 </AvatarFallback>
               </Avatar>
               {/* Status Indicator */}
@@ -130,15 +129,15 @@ export const ProfilePanel: React.FC<ProfilePanelProps> = ({
             </div>
 
             <div className="flex-1">
-              <h2 className="text-xl font-semibold text-gray-100">
+              <h2 className="text-xl font-semibold text-primary">
                 {member.name}
               </h2>
-              <p className="text-gray-400 mb-1">{member.title}</p>
-              <div className="flex items-center text-sm text-gray-500 mb-3">
+              <p className="text-muted-foreground mb-1">{member.title}</p>
+              <div className="flex items-center text-sm text-muted-foreground mb-3">
                 <Building className="h-4 w-4 mr-1" />
                 {member.company}
               </div>
-              <div className="flex items-center text-xs text-gray-500">
+              <div className="flex items-center text-xs text-muted-foreground">
                 <Clock className="h-3 w-3 mr-1" />
                 {getLastSeenText()}
               </div>
@@ -214,49 +213,20 @@ export const ProfilePanel: React.FC<ProfilePanelProps> = ({
         {/* Contact Information */}
         <div className="p-6 space-y-6">
           <div>
-            <h3 className="text-sm font-medium text-gray-300 mb-3">
+            <h3 className="text-sm font-medium text-primary mb-3">
               Contact Information
             </h3>
             <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center text-sm text-gray-400">
-                  <Mail className="h-4 w-4 mr-2" />
-                  <span>Email</span>
-                </div>
-                <a
-                  href={`mailto:${member.email}`}
-                  className="text-sm text-blue-400 hover:text-blue-300"
-                >
-                  {member.email}
-                </a>
+              <div className="flex items-center text-sm text-muted-foreground">
+                <Mail className="h-4 w-4 mr-2" />
+                {member.email}
+                <ExternalLink className="h-3 w-3 ml-2 text-muted-foreground" />
               </div>
-
-              {member.phone && (
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center text-sm text-gray-400">
-                    <Phone className="h-4 w-4 mr-2" />
-                    <span>Phone</span>
-                  </div>
-                  <a
-                    href={`tel:${member.phone}`}
-                    className="text-sm text-blue-400 hover:text-blue-300"
-                  >
-                    {member.phone}
-                  </a>
-                </div>
-              )}
-
-              {member.birthday && (
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center text-sm text-gray-400">
-                    <Cake className="h-4 w-4 mr-2" />
-                    <span>Birthday</span>
-                  </div>
-                  <span className="text-sm text-gray-300">
-                    {new Date(member.birthday).toLocaleDateString()}
-                  </span>
-                </div>
-              )}
+              <div className="flex items-center text-sm text-muted-foreground">
+                <Phone className="h-4 w-4 mr-2" />
+                {member.phone}
+                <ExternalLink className="h-3 w-3 ml-2 text-muted-foreground" />
+              </div>
             </div>
           </div>
 

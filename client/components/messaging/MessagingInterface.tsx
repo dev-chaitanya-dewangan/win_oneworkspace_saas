@@ -308,27 +308,27 @@ export const MessagingInterface: React.FC<MessagingInterfaceProps> = ({
     : [];
 
   return (
-    <div className="fixed inset-0 z-50 bg-gray-900">
-      <div className="flex h-full">
+    <div className="fixed inset-0 z-50 bg-background">
+      <div className="flex h-full overflow-hidden">
         {/* Header - Mobile Only */}
-        <div className="md:hidden absolute top-0 left-0 right-0 z-10 bg-gray-800 border-b border-gray-700 p-4">
+        <div className="md:hidden absolute top-0 left-0 right-0 z-10 bg-secondary border-b border-border p-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={() => setLeftPanelOpen(!leftPanelOpen)}
-                className="md:hidden"
+                className="md:hidden text-foreground hover:bg-accent"
               >
                 <Menu className="h-5 w-5" />
               </Button>
-              <h2 className="text-lg font-semibold text-gray-100">Messages</h2>
+              <h2 className="text-lg font-semibold text-foreground">Messages</h2>
             </div>
             <Button
               variant="ghost"
               size="sm"
               onClick={onClose}
-              className="text-gray-400 hover:text-gray-200"
+              className="text-muted-foreground hover:text-foreground hover:bg-accent"
             >
               <X className="h-5 w-5" />
             </Button>
@@ -341,8 +341,8 @@ export const MessagingInterface: React.FC<MessagingInterfaceProps> = ({
               className={cn(
                 "flex-1 flex items-center justify-center py-2 text-sm font-medium",
                 activePanel === "conversations"
-                  ? "text-blue-400 border-b-2 border-blue-400"
-                  : "text-gray-400",
+                  ? "text-foreground border-b-2 border-foreground"
+                  : "text-muted-foreground",
               )}
             >
               <MessageCircle className="h-4 w-4 mr-2" />
@@ -353,8 +353,8 @@ export const MessagingInterface: React.FC<MessagingInterfaceProps> = ({
               className={cn(
                 "flex-1 flex items-center justify-center py-2 text-sm font-medium",
                 activePanel === "chat"
-                  ? "text-blue-400 border-b-2 border-blue-400"
-                  : "text-gray-400",
+                  ? "text-foreground border-b-2 border-foreground"
+                  : "text-muted-foreground",
               )}
               disabled={!selectedConversation}
             >
@@ -366,8 +366,8 @@ export const MessagingInterface: React.FC<MessagingInterfaceProps> = ({
               className={cn(
                 "flex-1 flex items-center justify-center py-2 text-sm font-medium",
                 activePanel === "profile"
-                  ? "text-blue-400 border-b-2 border-blue-400"
-                  : "text-gray-400",
+                  ? "text-foreground border-b-2 border-foreground"
+                  : "text-muted-foreground",
               )}
               disabled={!state.selectedUser}
             >
@@ -378,16 +378,16 @@ export const MessagingInterface: React.FC<MessagingInterfaceProps> = ({
         </div>
 
         {/* Desktop Header */}
-        <div className="hidden md:block absolute top-0 left-0 right-0 z-10 bg-gray-800 border-b border-gray-700 p-4">
+        <div className="hidden md:block absolute top-0 left-0 right-0 z-10 bg-secondary border-b border-border p-4">
           <div className="flex items-center justify-between">
-            <h2 className="text-xl font-semibold text-gray-100">
+            <h2 className="text-xl font-semibold text-foreground">
               Messages & Scheduling
             </h2>
             <Button
               variant="ghost"
               size="sm"
               onClick={onClose}
-              className="text-gray-400 hover:text-gray-200"
+              className="text-muted-foreground hover:text-foreground hover:bg-accent"
             >
               <X className="h-5 w-5" />
             </Button>
@@ -395,13 +395,13 @@ export const MessagingInterface: React.FC<MessagingInterfaceProps> = ({
         </div>
 
         {/* Main Content */}
-        <div className="flex-1 flex pt-16 md:pt-16">
+        <div className="flex-1 flex pt-16 md:pt-16 overflow-hidden">
           {/* Desktop 3-panel layout */}
-          <div className="hidden md:flex flex-1">
+          <div className="hidden md:flex flex-1 overflow-hidden">
             {/* Left Panel - Conversations */}
             <div
               className={cn(
-                "w-80 border-r border-gray-700 transition-all duration-300",
+                "w-80 border-r border-border transition-all duration-300 overflow-hidden",
                 leftPanelOpen
                   ? "translate-x-0"
                   : "-translate-x-full md:translate-x-0",
@@ -416,7 +416,7 @@ export const MessagingInterface: React.FC<MessagingInterfaceProps> = ({
             </div>
 
             {/* Center Panel - Chat */}
-            <div className="flex-1">
+            <div className="flex-1 overflow-hidden">
               <ChatThread
                 conversation={selectedConversation}
                 messages={selectedMessages}
@@ -430,7 +430,7 @@ export const MessagingInterface: React.FC<MessagingInterfaceProps> = ({
             </div>
 
             {/* Right Panel - Profile */}
-            <div className="w-80 border-l border-gray-700">
+            <div className="w-80 border-l border-border overflow-hidden">
               <ProfilePanel
                 user={state.selectedUser}
                 events={state.events}
@@ -444,7 +444,7 @@ export const MessagingInterface: React.FC<MessagingInterfaceProps> = ({
           </div>
 
           {/* Mobile single panel view */}
-          <div className="md:hidden flex-1">
+          <div className="md:hidden flex-1 overflow-hidden">
             {activePanel === "conversations" && (
               <ConversationList
                 conversations={state.conversations}
