@@ -12,6 +12,7 @@ import {
   Cloud,
   CloudRain,
 } from "lucide-react";
+import { ChatInput } from "./ChatInput";
 import {
   Tooltip,
   TooltipContent,
@@ -19,11 +20,20 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 
+// Import Chip type from ChatInput
+interface Chip {
+  id: string;
+  type: 'mention' | 'file' | 'mind';
+  text: string;
+  data: any;
+}
+
 interface Message {
   id: string;
   type: "user" | "ai";
   content: string;
   timestamp: Date;
+  chips?: Chip[];
   includesImage?: boolean;
   includesWeather?: boolean;
   weatherData?: {
@@ -112,14 +122,14 @@ const MessageBubble = ({ message }: { message: Message }) => {
   return (
     <div
       className={cn(
-        "flex w-full mb-4",
+        "flex w-full mb-3 sm:mb-4",
         isUser ? "justify-end" : "justify-start",
       )}
     >
-      <div className={cn("max-w-[80%]", isUser ? "order-1" : "order-2")}>
+      <div className={cn("max-w-[85%] sm:max-w-[80%]", isUser ? "order-1" : "order-2")}>
         {!isUser && (
-          <div className="flex items-center space-x-2 mb-1">
-            <div className="w-6 h-6 rounded-full bg-gradient-to-r from-foreground to-muted flex items-center justify-center">
+          <div className="flex items-center space-x-2 mb-1 px-1">
+            <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-gradient-to-r from-foreground to-muted flex items-center justify-center">
               <span className="text-xs font-bold text-background">✨</span>
             </div>
             <span className="text-xs text-muted-foreground">AI Assistant</span>
@@ -128,21 +138,59 @@ const MessageBubble = ({ message }: { message: Message }) => {
 
         <div
           className={cn(
-            "rounded-xl px-4 py-3 shadow-sm",
+            "rounded-xl px-3 py-2 sm:px-4 sm:py-3 shadow-sm backdrop-blur-sm",
             isUser
-              ? "bg-secondary text-foreground ml-4"
-              : "bg-card text-card-foreground mr-4",
+              ? "bg-card/90 text-foreground ml-2 sm:ml-4 border border-border"
+              : "bg-muted/90 text-foreground mr-2 sm:mr-4 border border-border",
           )}
         >
-          <p className="text-sm leading-relaxed">{message.content}</p>
+          {/* Display chips if they exist */}
+          {message.chips && message.chips.length > 0 && (
+            <div className="flex flex-wrap gap-1 mb-2">
+              {message.chips.map((chip, index) => {
+                const baseSaturation = 20;
+                const saturationIncrement = 5;
+                const maxSaturation = 50;
+                const saturation = Math.min(baseSaturation + (index * saturationIncrement), maxSaturation);
+                
+                const colors = {
+                  mention: `hsl(210, ${saturation}%, 85%)`,
+                  file: `hsl(120, ${saturation}%, 85%)`,
+                  mind: `hsl(280, ${saturation}%, 85%)`
+                };
+                
+                const borderColors = {
+                  mention: `hsl(210, ${saturation}%, 65%)`,
+                  file: `hsl(120, ${saturation}%, 65%)`,
+                  mind: `hsl(280, ${saturation}%, 65%)`
+                };
+
+                return (
+                  <span
+                    key={chip.id}
+                    className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium border"
+                    style={{
+                      backgroundColor: colors[chip.type],
+                      borderColor: borderColors[chip.type],
+                      boxShadow: '0 1px 2px rgba(0,0,0,0.1)'
+                    }}
+                  >
+                    {chip.text}
+                  </span>
+                );
+              })}
+            </div>
+          )}
+          
+          <p className="text-sm leading-relaxed break-words">{message.content}</p>
 
           {/* Image Card */}
           {message.includesImage && !isUser && (
-            <div className="mt-3 p-3 bg-secondary rounded-lg border border-border">
+            <div className="mt-3 p-3 bg-accent/50 rounded-lg border border-border backdrop-blur-sm">
               <img
                 src="https://via.placeholder.com/512x300/1f2937/9ca3af?text=Walter+Isaacson"
                 alt="Walter Isaacson"
-                className="w-full h-32 object-cover rounded-md mb-2"
+                className="w-full h-24 sm:h-32 object-cover rounded-md mb-2"
               />
               <p className="text-xs text-muted-foreground">
                 Sample document content about Walter Isaacson
@@ -152,31 +200,31 @@ const MessageBubble = ({ message }: { message: Message }) => {
 
           {/* Weather Card */}
           {message.includesWeather && message.weatherData && !isUser && (
-            <div className="mt-3 p-4 bg-gradient-to-r from-secondary to-card rounded-lg shadow-lg border border-border">
+            <div className="mt-3 p-3 sm:p-4 bg-gradient-to-r from-accent/50 to-card/50 rounded-lg shadow-lg border border-border backdrop-blur-sm">
               <div className="flex items-center justify-between mb-3">
                 <div>
                   <div className="flex items-center space-x-2">
-                    <Sun className="h-8 w-8 text-yellow-300" />
-                    <span className="text-3xl font-bold text-foreground">
+                    <Sun className="h-6 w-6 sm:h-8 sm:w-8 text-yellow-300" />
+                    <span className="text-2xl sm:text-3xl font-bold text-foreground">
                       {message.weatherData.temperature}°C
                     </span>
                   </div>
-                  <p className="text-muted-foreground text-sm">
+                  <p className="text-muted-foreground text-xs sm:text-sm">
                     {message.weatherData.location}
                   </p>
                 </div>
                 <div className="text-right">
-                  <p className="text-muted-foreground text-sm">
+                  <p className="text-muted-foreground text-xs sm:text-sm">
                     H:{message.weatherData.high}° L:{message.weatherData.low}°
                   </p>
                 </div>
               </div>
 
-              <div className="flex space-x-2 overflow-x-auto">
+              <div className="flex space-x-1 sm:space-x-2 overflow-x-auto pb-1">
                 {message.weatherData.hourly.map((hour, index) => (
                   <div
                     key={index}
-                    className="flex flex-col items-center space-y-1 min-w-[50px] bg-accent/50 rounded-lg p-2"
+                    className="flex flex-col items-center space-y-1 min-w-[40px] sm:min-w-[50px] bg-accent/30 rounded-lg p-1.5 sm:p-2 backdrop-blur-sm"
                   >
                     <span className="text-xs text-muted-foreground">{hour.time}</span>
                     <WeatherIcon type={hour.icon} />
@@ -197,14 +245,14 @@ const MessageBubble = ({ message }: { message: Message }) => {
 
         {/* Feedback Actions for AI messages */}
         {!isUser && (
-          <div className="flex items-center space-x-2 mt-2 ml-4">
+          <div className="flex items-center space-x-1 sm:space-x-2 mt-2 ml-2 sm:ml-4">
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="h-7 w-7 p-0 text-muted-foreground hover:text-foreground"
+                    className="h-6 w-6 sm:h-7 sm:w-7 p-0 text-muted-foreground hover:text-foreground hover:bg-accent/50"
                   >
                     <Copy className="h-3 w-3" />
                   </Button>
@@ -219,7 +267,7 @@ const MessageBubble = ({ message }: { message: Message }) => {
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="h-7 w-7 p-0 text-muted-foreground hover:text-foreground"
+                    className="h-6 w-6 sm:h-7 sm:w-7 p-0 text-muted-foreground hover:text-foreground hover:bg-accent/50"
                   >
                     <ThumbsUp className="h-3 w-3" />
                   </Button>
@@ -234,7 +282,7 @@ const MessageBubble = ({ message }: { message: Message }) => {
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="h-7 w-7 p-0 text-muted-foreground hover:text-destructive"
+                    className="h-6 w-6 sm:h-7 sm:w-7 p-0 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
                   >
                     <ThumbsDown className="h-3 w-3" />
                   </Button>
@@ -243,7 +291,7 @@ const MessageBubble = ({ message }: { message: Message }) => {
               </Tooltip>
             </TooltipProvider>
 
-            <span className="text-xs text-muted-foreground ml-2">
+            <span className="text-xs text-muted-foreground ml-2 hidden sm:inline">
               {message.timestamp.toLocaleTimeString([], {
                 hour: "2-digit",
                 minute: "2-digit",
@@ -254,7 +302,7 @@ const MessageBubble = ({ message }: { message: Message }) => {
 
         {/* Timestamp for user messages */}
         {isUser && (
-          <div className="flex justify-end mr-4 mt-1">
+          <div className="flex justify-end mr-2 sm:mr-4 mt-1">
             <span className="text-xs text-muted-foreground">
               {message.timestamp.toLocaleTimeString([], {
                 hour: "2-digit",
@@ -270,8 +318,6 @@ const MessageBubble = ({ message }: { message: Message }) => {
 
 export const AiChat = () => {
   const [messages, setMessages] = React.useState<Message[]>([]);
-  const [inputValue, setInputValue] = React.useState("");
-  const [isRecording, setIsRecording] = React.useState(false);
   const [isNewChat, setIsNewChat] = React.useState(false);
   const [chatCreated, setChatCreated] = React.useState(false);
   const messagesEndRef = React.useRef<HTMLDivElement>(null);
@@ -295,8 +341,8 @@ export const AiChat = () => {
     scrollToBottom();
   }, [messages]);
 
-  const handleSendMessage = () => {
-    if (inputValue.trim()) {
+  const handleSendMessage = (content: string, chips: Chip[]) => {
+    if (content.trim() || chips.length > 0) {
       // Create new chat instance only when first message is sent
       if (isNewChat && !chatCreated) {
         setChatCreated(true);
@@ -309,19 +355,32 @@ export const AiChat = () => {
       const newMessage: Message = {
         id: Date.now().toString(),
         type: "user",
-        content: inputValue,
+        content: content,
         timestamp: new Date(),
+        chips: chips.length > 0 ? chips : undefined,
       };
 
       setMessages((prev) => [...prev, newMessage]);
-      setInputValue("");
 
-      // Simulate AI response
+      // Simulate AI response with context from chips
       setTimeout(() => {
+        let aiContent = "I understand your request. Let me help you with that.";
+        
+        if (chips.length > 0) {
+          const mentions = chips.filter(c => c.type === 'mention' || c.type === 'file');
+          const mindRefs = chips.filter(c => c.type === 'mind');
+          
+          if (mentions.length > 0) {
+            aiContent = `I see you've mentioned ${mentions.map(m => m.text).join(', ')}. Let me review those files and provide assistance.`;
+          } else if (mindRefs.length > 0) {
+            aiContent = `I understand you're referencing ${mindRefs.map(m => m.text).join(', ')} from your mind map. Let me help you with that context.`;
+          }
+        }
+
         const aiResponse: Message = {
           id: (Date.now() + 1).toString(),
           type: "ai",
-          content: "I understand your request. Let me help you with that.",
+          content: aiContent,
           timestamp: new Date(),
         };
         setMessages((prev) => [...prev, aiResponse]);
@@ -329,99 +388,77 @@ export const AiChat = () => {
     }
   };
 
-  const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
-      handleSendMessage();
-    }
-  };
-
-  const toggleRecording = () => {
-    setIsRecording(!isRecording);
-    // Simulate voice recording logic here
-  };
-
   return (
-    <div className="flex flex-col h-full bg-background text-foreground overflow-hidden">
-      {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b border-border bg-secondary">
+    <div className="h-full w-full bg-background text-foreground flex flex-col overflow-hidden">
+      {/* Fixed Header */}
+      <div className="flex-shrink-0 flex items-center justify-between p-3 sm:p-4 border-b border-border bg-card/95 backdrop-blur-sm z-10">
         <div className="flex items-center space-x-2">
-          <div className="w-8 h-8 rounded-full bg-gradient-to-r from-foreground to-muted flex items-center justify-center">
-            <span className="text-sm font-bold text-background">✨</span>
+          <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-gradient-to-r from-foreground to-muted flex items-center justify-center">
+            <span className="text-xs sm:text-sm font-bold text-background">✨</span>
           </div>
-          <h2 className="text-lg font-semibold text-foreground">AI Assistant</h2>
+          <h2 className="text-base sm:text-lg font-semibold text-foreground">AI Assistant</h2>
         </div>
-        <div className="flex items-center space-x-2">
+        <div className="hidden sm:flex items-center space-x-2">
           <span className="text-xs text-muted-foreground">Ctrl+/</span>
           <span className="text-xs text-muted-foreground">Cmd+K</span>
         </div>
       </div>
 
-      {/* Messages Container */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4 hide-scrollbar">
-        {messages.length === 0 && isNewChat ? (
-          <div className="flex items-center justify-center h-full">
-            <div className="text-center text-muted-foreground">
-              <div className="w-16 h-16 rounded-full bg-gradient-to-r from-foreground to-muted flex items-center justify-center mx-auto mb-4">
-                <span className="text-2xl text-background">✨</span>
+      {/* Scrollable Messages Area - ONLY this section scrolls */}
+      <div className="flex-1 min-h-0 bg-background relative overflow-hidden">
+        <div className="h-full overflow-y-auto hide-scrollbar">
+          <div className="max-w-4xl mx-auto px-3 sm:px-4 py-4">
+            {messages.length === 0 && isNewChat ? (
+              <div className="flex items-center justify-center min-h-[50vh]">
+                <div className="text-center text-muted-foreground">
+                  <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-gradient-to-r from-foreground to-muted flex items-center justify-center mx-auto mb-4">
+                    <span className="text-lg sm:text-2xl text-background">✨</span>
+                  </div>
+                  <h3 className="text-base sm:text-lg font-semibold text-foreground mb-2">
+                    New Chat
+                  </h3>
+                  <p className="text-sm text-muted-foreground">
+                    Start a conversation with your AI assistant
+                  </p>
+                </div>
               </div>
-              <h3 className="text-lg font-semibold text-foreground mb-2">
-                New Chat
-              </h3>
-              <p className="text-sm">
-                Start a conversation with your AI assistant
-              </p>
-            </div>
+            ) : (
+              <div className="space-y-4 pb-4">
+                {messages.map((message) => (
+                  <MessageBubble key={message.id} message={message} />
+                ))}
+              </div>
+            )}
+            <div ref={messagesEndRef} />
           </div>
-        ) : (
-          messages.map((message) => (
-            <MessageBubble key={message.id} message={message} />
-          ))
-        )}
-        <div ref={messagesEndRef} />
+        </div>
       </div>
 
-      {/* Input Bar */}
-      <div className="sticky bottom-0 p-4 border-t border-border bg-background">
-        <div className="flex items-center space-x-2">
-          <div className="flex-1 relative">
-            <Input
-              value={inputValue}
-              onChange={(e) => setInputValue(e.target.value)}
-              onKeyPress={handleKeyPress}
-              placeholder="Type or say your command..."
-              className="w-full bg-card border-border text-foreground placeholder-muted-foreground pr-12 focus:border-ring focus:ring-ring"
-            />
-            <Button
-              variant="ghost"
-              size="sm"
-              className={cn(
-                "absolute right-2 top-1/2 transform -translate-y-1/2 h-7 w-7 p-0",
-                isRecording
-                  ? "text-destructive hover:text-destructive/80"
-                  : "text-muted-foreground hover:text-foreground",
-              )}
-              onClick={toggleRecording}
-            >
-              <Mic className="h-4 w-4" />
-            </Button>
+      {/* Fixed Chat Input - Does NOT scroll */}
+      <div className="flex-shrink-0 border-t border-border bg-background/95 backdrop-blur-sm z-20">
+        <div className="max-w-4xl mx-auto p-3 sm:p-4">
+          <ChatInput
+            onSendMessage={handleSendMessage}
+            placeholder="Ask AI anything, @ to mention people or files, # for mind references..."
+            className="w-full"
+            popupDirection="up"
+          />
+          
+          {/* Quick Actions - Responsive */}
+          <div className="flex items-center justify-center space-x-2 sm:space-x-4 mt-2 sm:mt-3 text-xs text-muted-foreground">
+            <span className="flex items-center space-x-1">
+              <span>💡</span>
+              <span className="hidden sm:inline">Pro Tips</span>
+            </span>
+            <span className="flex items-center space-x-1">
+              <span>🔍</span>
+              <span className="hidden sm:inline">Search Pages</span>
+            </span>
+            <span className="flex items-center space-x-1">
+              <span>📁</span>
+              <span className="hidden sm:inline">Upload & Analyze</span>
+            </span>
           </div>
-          <Button
-            onClick={handleSendMessage}
-            disabled={!inputValue.trim()}
-            className="bg-foreground hover:bg-muted text-background disabled:bg-muted disabled:text-muted-foreground"
-          >
-            <Send className="h-4 w-4" />
-          </Button>
-        </div>
-
-        {/* Quick Actions */}
-        <div className="flex items-center justify-center space-x-4 mt-3 text-xs text-muted-foreground">
-          <span>💡 Pro Tips</span>
-          <span>🔍 Search Pages</span>
-          <span>📁 Upload & Analyze</span>
-          <span>🧠 Loading Page</span>
-          <span>⚡ Shortcuts Tools</span>
         </div>
       </div>
     </div>

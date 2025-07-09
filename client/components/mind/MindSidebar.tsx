@@ -343,13 +343,15 @@ export const MindSidebar: React.FC<MindSidebarProps> = ({
                       <button
                         onClick={() => handleColorChange(color.value)}
                         className={cn(
-                          "h-10 rounded-lg border-2 transition-all metallic-base",
-                          color.class,
+                          "h-10 rounded-lg border-2 transition-all duration-200 hover:scale-105",
                           node.color === color.value
-                            ? "border-white shadow-lg scale-105 glow-blue"
-                            : "border-border/50 hover:border-border",
+                            ? "border-white shadow-lg scale-105 ring-2 ring-white ring-opacity-50"
+                            : "border-gray-600 hover:border-gray-400",
                         )}
-                        style={{ backgroundColor: color.hex }}
+                        style={{ 
+                          backgroundColor: color.hex,
+                          backgroundImage: `linear-gradient(135deg, ${color.hex} 0%, ${color.hex}dd 100%)`,
+                        }}
                       />
                     </TooltipTrigger>
                     <TooltipContent>{color.name}</TooltipContent>
@@ -368,10 +370,17 @@ export const MindSidebar: React.FC<MindSidebarProps> = ({
                     >
                       <div className="flex items-center space-x-2">
                         <div
-                          className="w-4 h-4 rounded border border-border/50"
-                          style={{ backgroundColor: customColor }}
+                          className="w-4 h-4 rounded border border-gray-400"
+                          style={{ 
+                            backgroundColor: node.color.startsWith('#') ? node.color : customColor,
+                            backgroundImage: node.color.startsWith('#') 
+                              ? `linear-gradient(135deg, ${node.color} 0%, ${node.color}dd 100%)`
+                              : `linear-gradient(135deg, ${customColor} 0%, ${customColor}dd 100%)`
+                          }}
                         />
-                        <span className="text-sm">{customColor.toUpperCase()}</span>
+                        <span className="text-sm">
+                          {node.color.startsWith('#') ? node.color.toUpperCase() : customColor.toUpperCase()}
+                        </span>
                       </div>
                       <ChevronDown className="h-4 w-4 text-muted-foreground" />
                     </Button>

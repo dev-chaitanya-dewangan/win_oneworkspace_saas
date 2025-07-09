@@ -44,15 +44,23 @@ const MainLayout: React.FC<MainLayoutProps> = ({
     <SidebarProvider>
       <OneWorkspaceSidebar />
       <SidebarInset>
-        <div className="flex flex-1 flex-col overflow-hidden relative">
-          {/* Dynamic Island is now rendered by Toolbar and positioned absolutely */}
-          <Toolbar
-            onCommand={handleCommand}
-            aiFeed={aiFeed}
-            setAiFeed={setAiFeed}
-            onOpenSearch={() => setIsSearchDrawerOpen(true)}
-          />
-          <main className="flex-1 overflow-y-auto pt-4">{children}</main>
+        <div className="flex flex-1 flex-col h-full relative">
+          {/* Fixed/Sticky Toolbar at the top */}
+          <div className="sticky top-0 z-40 flex-shrink-0">
+            <Toolbar
+              onCommand={handleCommand}
+              aiFeed={aiFeed}
+              setAiFeed={setAiFeed}
+              onOpenSearch={() => setIsSearchDrawerOpen(true)}
+            />
+          </div>
+          
+          {/* Main content area with proper spacing for the fixed header */}
+          <main className="flex-1 overflow-hidden">
+            <div className="h-full overflow-y-auto">
+              {children}
+            </div>
+          </main>
         </div>
       </SidebarInset>
 

@@ -407,7 +407,7 @@ export const MindCanvas: React.FC<MindCanvasProps> = ({
             transform: `translate(${viewport.x}px, ${viewport.y}px) scale(${viewport.zoom})`,
           }}
         >
-          {/* Enhanced Grid Background - Black with tinted transparent dots */}
+          {/* Enhanced Grid Background - Black with white dots */}
           <div
             className="absolute inset-0"
             style={{
@@ -417,13 +417,11 @@ export const MindCanvas: React.FC<MindCanvasProps> = ({
               top: "-5000px",
               backgroundColor: "#000000",
               backgroundImage: `
-                radial-gradient(circle, rgba(59, 130, 246, 0.3) 1px, transparent 1px),
-                radial-gradient(circle, rgba(147, 51, 234, 0.2) 1px, transparent 1px),
-                radial-gradient(circle, rgba(236, 72, 153, 0.2) 1px, transparent 1px)
+                radial-gradient(circle, rgba(255, 255, 255, 0.4) 3px, transparent 3px)
               `,
-              backgroundSize: "50px 50px, 100px 100px, 75px 75px",
-              backgroundPosition: "0 0, 25px 25px, 37.5px 37.5px",
-              opacity: 0.4,
+              backgroundSize: "80px 80px",
+              backgroundPosition: "0 0",
+              opacity: 0.6,
             }}
           />
           
