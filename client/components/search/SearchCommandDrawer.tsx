@@ -51,9 +51,33 @@ interface SearchResult {
 interface SearchCommandDrawerProps {
   isOpen: boolean;
   onClose: () => void;
+  onCreateNode?: (title: string, position?: { x: number; y: number }) => void;
 }
 
 const mockResults: SearchResult[] = [
+  // Quick Actions for Mind Map
+  {
+    id: "a1",
+    type: "action",
+    title: "Create Note",
+    subtitle: "Add new mind map node",
+    icon: FileText,
+  },
+  {
+    id: "a2",
+    type: "action",
+    title: "Create Connection",
+    subtitle: "Link existing nodes",
+    icon: Plus,
+  },
+  {
+    id: "a3",
+    type: "action",
+    title: "Add Collection",
+    subtitle: "Group related ideas",
+    icon: Archive,
+  },
+
   // People
   {
     id: "p1",
@@ -139,29 +163,6 @@ const mockResults: SearchResult[] = [
     subtitle: "5 minutes ago",
     avatar: "BW",
     count: 2,
-  },
-
-  // Quick Actions
-  {
-    id: "a1",
-    type: "action",
-    title: "Create Task",
-    subtitle: "Add new task to project",
-    icon: CheckCircle,
-  },
-  {
-    id: "a2",
-    type: "action",
-    title: "Create Note",
-    subtitle: "Quick note or memo",
-    icon: FileText,
-  },
-  {
-    id: "a3",
-    type: "action",
-    title: "Add Member",
-    subtitle: "Invite team member",
-    icon: Users,
   },
 ];
 
@@ -264,6 +265,7 @@ const ResultItem: React.FC<{ result: SearchResult; onSelect: () => void }> = ({
 export const SearchCommandDrawer: React.FC<SearchCommandDrawerProps> = ({
   isOpen,
   onClose,
+  onCreateNode,
 }) => {
   const [searchQuery, setSearchQuery] = React.useState("");
   const [filteredResults, setFilteredResults] = React.useState(mockResults);
@@ -287,8 +289,24 @@ export const SearchCommandDrawer: React.FC<SearchCommandDrawerProps> = ({
 
   const handleResultSelect = (result: SearchResult) => {
     console.log("Selected:", result);
-    // Handle result selection based on type
+    
+    // Handle mind map node creation
+    if (result.type === "action" && result.id === "a1" && onCreateNode) {
+      onCreateNode("New Idea", { x: 400, y: 300 });
+    } else if (onCreateNode && searchQuery.trim()) {
+      // Create node from search query
+      onCreateNode(searchQuery.trim(), { x: 400, y: 300 });
+    }
+    
     onClose();
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter" && searchQuery.trim() && onCreateNode) {
+      e.preventDefault();
+      onCreateNode(searchQuery.trim(), { x: 400, y: 300 });
+      onClose();
+    }
   };
 
   const groupedResults = React.useMemo(() => {
@@ -324,20 +342,23 @@ export const SearchCommandDrawer: React.FC<SearchCommandDrawerProps> = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="metallic-base w-[460px] max-w-[95vw] h-[600px] max-h-[90vh] p-0 rounded-[18px] overflow-hidden">
+      <DialogContent className="metallic-base w-[520px] max-w-[95vw] h-[680px] max-h-[90vh] p-0 rounded-[24px] overflow-hidden border border-white/20 shadow-2xl backdrop-blur-xl">
         <DialogHeader className="sr-only">
           <DialogTitle>Search and Commands</DialogTitle>
         </DialogHeader>
 
         {/* Header */}
-        <div className="sticky top-0 bg-gradient-to-r from-white/5 to-white/10 border-b border-white/10 px-5 py-4 backdrop-blur-md">
-          <div className="flex items-center space-x-3">
-            <Search className="h-5 w-5 text-secondary flex-shrink-0" />
+        <div className="sticky top-0 bg-gradient-to-br from-violet-900/30 via-blue-900/20 to-cyan-900/30 border-b border-white/15 px-6 py-5 backdrop-blur-md">
+          <div className="flex items-center space-x-4">
+            <div className="p-2 bg-white/10 rounded-lg backdrop-blur-sm">
+              <Search className="h-5 w-5 text-white/90 flex-shrink-0" />
+            </div>
             <Input
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search people, files, or type a command..."
-              className="border-0 bg-transparent text-white placeholder-white/60 focus:ring-0 text-base font-medium px-0"
+              onKeyDown={handleKeyDown}
+              placeholder="Create new node or search..."
+              className="border-0 bg-transparent text-white placeholder-white/60 focus:ring-0 text-lg font-medium px-0 h-auto"
               autoFocus
             />
             <div className="flex items-center space-x-2 flex-shrink-0">
@@ -346,7 +367,7 @@ export const SearchCommandDrawer: React.FC<SearchCommandDrawerProps> = ({
                   variant="ghost"
                   size="sm"
                   onClick={clearSearch}
-                  className="h-5 w-5 p-0 text-secondary hover:text-primary"
+                  className="h-8 w-8 p-0 text-white/60 hover:text-white hover:bg-white/10 rounded-lg"
                 >
                   <X className="h-4 w-4" />
                 </Button>
@@ -354,50 +375,64 @@ export const SearchCommandDrawer: React.FC<SearchCommandDrawerProps> = ({
               <Button
                 variant="ghost"
                 size="sm"
-                className="h-5 w-5 p-0 text-secondary hover:text-primary"
+                className="h-8 w-8 p-0 text-white/60 hover:text-white hover:bg-white/10 rounded-lg"
               >
                 <Filter className="h-4 w-4" />
               </Button>
             </div>
           </div>
+          
+          {searchQuery.trim() && onCreateNode && (
+            <div className="mt-3 p-3 bg-white/5 rounded-lg border border-white/10">
+              <div className="text-sm text-white/80">
+                Press <kbd className="px-2 py-1 bg-white/20 rounded text-white font-mono text-xs">Enter</kbd> to create: "{searchQuery.trim()}"
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Quick Actions (when no search) */}
-        {!searchQuery && (
-          <div className="px-5 py-3 border-b border-muted">
+        {!searchQuery && onCreateNode && (
+          <div className="px-6 py-4 border-b border-white/10">
+            <div className="text-xs font-medium text-white/60 uppercase tracking-wider mb-3">
+              QUICK CREATE
+            </div>
             <div className="flex flex-wrap gap-2">
               <Button
                 variant="secondary"
                 size="sm"
-                className="rounded-[10px] text-sm font-medium"
-                onClick={() =>
-                  handleResultSelect(mockResults.find((r) => r.id === "a1")!)
-                }
+                className="rounded-[12px] text-sm font-medium bg-white/10 hover:bg-white/20 text-white border-white/20"
+                onClick={() => {
+                  onCreateNode("New Idea", { x: 400, y: 300 });
+                  onClose();
+                }}
               >
-                <CheckCircle className="h-4 w-4 mr-2" />
-                Create Task
+                <Plus className="h-4 w-4 mr-2" />
+                New Idea
               </Button>
               <Button
                 variant="secondary"
                 size="sm"
-                className="rounded-[10px] text-sm font-medium"
-                onClick={() =>
-                  handleResultSelect(mockResults.find((r) => r.id === "a2")!)
-                }
+                className="rounded-[12px] text-sm font-medium bg-white/10 hover:bg-white/20 text-white border-white/20"
+                onClick={() => {
+                  onCreateNode("Research Topic", { x: 400, y: 300 });
+                  onClose();
+                }}
               >
                 <FileText className="h-4 w-4 mr-2" />
-                Create Note
+                Research Topic
               </Button>
               <Button
                 variant="secondary"
                 size="sm"
-                className="rounded-[10px] text-sm font-medium"
-                onClick={() =>
-                  handleResultSelect(mockResults.find((r) => r.id === "a3")!)
-                }
+                className="rounded-[12px] text-sm font-medium bg-white/10 hover:bg-white/20 text-white border-white/20"
+                onClick={() => {
+                  onCreateNode("Meeting Notes", { x: 400, y: 300 });
+                  onClose();
+                }}
               >
-                <Users className="h-4 w-4 mr-2" />
-                Add Member
+                <MessageCircle className="h-4 w-4 mr-2" />
+                Meeting Notes
               </Button>
             </div>
           </div>
@@ -409,8 +444,8 @@ export const SearchCommandDrawer: React.FC<SearchCommandDrawerProps> = ({
             if (results.length === 0) return null;
 
             return (
-              <div key={type} className="px-5 py-3">
-                <h3 className="text-xs font-medium text-secondary uppercase tracking-wider mb-3">
+              <div key={type} className="px-6 py-4">
+                <h3 className="text-xs font-medium text-white/60 uppercase tracking-wider mb-3">
                   {getSectionTitle(type)}
                 </h3>
                 <div className="space-y-1">
@@ -422,18 +457,18 @@ export const SearchCommandDrawer: React.FC<SearchCommandDrawerProps> = ({
                     />
                   ))}
                 </div>
-                {type !== "action" && <Separator className="mt-4 bg-muted" />}
+                {type !== "action" && <Separator className="mt-4 bg-white/10" />}
               </div>
             );
           })}
 
           {filteredResults.length === 0 && (
-            <div className="px-5 py-8 text-center">
-              <Search className="h-8 w-8 text-secondary mx-auto mb-3" />
-              <h3 className="text-sm font-medium text-primary mb-1">
+            <div className="px-6 py-8 text-center">
+              <Search className="h-8 w-8 text-white/40 mx-auto mb-3" />
+              <h3 className="text-sm font-medium text-white/80 mb-1">
                 No results found
               </h3>
-              <p className="text-xs text-secondary">
+              <p className="text-xs text-white/60">
                 Try searching with different keywords
               </p>
             </div>
@@ -441,16 +476,16 @@ export const SearchCommandDrawer: React.FC<SearchCommandDrawerProps> = ({
         </div>
 
         {/* Footer */}
-        <div className="sticky bottom-0 bg-primary border-t border-muted px-5 py-3">
-          <div className="flex items-center justify-between text-xs text-secondary">
+        <div className="sticky bottom-0 bg-gradient-to-t from-black/60 to-transparent border-t border-white/10 px-6 py-4 backdrop-blur-sm">
+          <div className="flex items-center justify-between text-xs text-white/60">
             <div className="flex items-center space-x-4">
               <span>↑↓ Navigate</span>
-              <span>⏎ Select</span>
-              <span>⌘K Open</span>
+              <span>⏎ {onCreateNode ? 'Create/Select' : 'Select'}</span>
+              <span>⌘⇧K Open</span>
             </div>
             <div className="flex items-center space-x-2">
-              <Clock className="h-3 w-3" />
-              <span>Recent searches</span>
+              <Zap className="h-3 w-3" />
+              <span>Mind Palace</span>
             </div>
           </div>
         </div>

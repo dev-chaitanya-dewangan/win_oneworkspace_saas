@@ -26,7 +26,7 @@ const DynamicIslandInput = React.forwardRef<
     {
       onCommand,
       onVoiceInput,
-      placeholder = "Type or say your command…",
+      placeholder = "                  Ctrl + /",
       className,
       disabled = false,
     },

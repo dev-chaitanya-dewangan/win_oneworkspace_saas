@@ -118,14 +118,15 @@
   body {
     @apply bg-background text-foreground;
     height: 100%;
-    overflow: hidden; /* Prevent body scroll */
+    overflow-x: hidden; /* Hide horizontal scroll */
+    overflow-y: auto; /* Allow vertical scroll */
     margin: 0;
     padding: 0;
   }
 
   #root {
-    height: 100vh;
-    overflow: hidden; /* Prevent root scroll */
+    min-height: 100vh; /* Allow content to exceed viewport height */
+    overflow: visible; /* Enable scroll to propagate to body */
   }
 
   /* Enhanced text visibility utilities */

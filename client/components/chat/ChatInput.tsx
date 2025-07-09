@@ -99,7 +99,7 @@ interface ChatInputProps {
 
 export const ChatInput: React.FC<ChatInputProps> = ({
   onSendMessage,
-  placeholder = "Type or say your command...",
+  placeholder = "Ctrl + /",
   className = "",
   popupDirection = "down",
   mentionTextColor = "white",

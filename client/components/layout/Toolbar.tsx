@@ -65,10 +65,7 @@ const Toolbar: React.FC<ToolbarProps> = ({
   // Global keyboard shortcuts
   React.useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.ctrlKey && e.key === "/") {
-        e.preventDefault();
-        setActionSearchOpen(true);
-      } else if ((e.metaKey || e.ctrlKey) && e.key === "k") {
+      if ((e.metaKey || e.ctrlKey) && e.key === "k") {
         e.preventDefault();
         setCommandPaletteOpen(true);
       }
@@ -170,7 +167,7 @@ const Toolbar: React.FC<ToolbarProps> = ({
     <TooltipProvider>
       <div
         className={cn(
-          "flex h-16 items-center justify-between border-b border-border bg-background/60 backdrop-blur-sm px-4",
+          "sticky top-0 z-50 flex h-16 items-center justify-between border-b border-border bg-background/60 backdrop-blur-sm px-4",
           className,
         )}
       >
@@ -188,45 +185,6 @@ const Toolbar: React.FC<ToolbarProps> = ({
         </div>
 
         <div className="flex items-center space-x-2">
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setActionSearchOpen(true)}
-                className="hidden sm:flex text-xs text-muted-foreground hover:text-foreground"
-              >
-                <Keyboard className="h-4 w-4 sm:mr-1" />
-                <span className="hidden lg:inline">Ctrl+/</span>
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>Action Search (Ctrl+/)</p>
-              <p className="text-xs text-muted-foreground">
-                Search for users, files, and actions
-              </p>
-            </TooltipContent>
-          </Tooltip>
-
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={onOpenSearch}
-                className="hidden sm:flex text-xs text-muted-foreground hover:text-foreground"
-              >
-                <Command className="h-4 w-4 sm:mr-1" />
-                <span className="hidden lg:inline">Cmd+K</span>
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>Search & Commands (Cmd+K)</p>
-              <p className="text-xs text-muted-foreground">
-                Search people, files, and quick actions
-              </p>
-            </TooltipContent>
-          </Tooltip>
 
           <Tooltip>
             <TooltipTrigger asChild>
@@ -247,24 +205,7 @@ const Toolbar: React.FC<ToolbarProps> = ({
             </TooltipContent>
           </Tooltip>
 
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="hidden sm:flex text-xs text-muted-foreground hover:text-foreground pointer-events-none"
-              >
-                <Mic className="h-4 w-4 sm:mr-1" />
-                <span className="hidden lg:inline">Ctrl+&gt;</span>
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>Voice Command (Ctrl+&gt;)</p>
-              <p className="text-xs text-muted-foreground">
-                Activate microphone for voice input
-              </p>
-            </TooltipContent>
-          </Tooltip>
+          
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>

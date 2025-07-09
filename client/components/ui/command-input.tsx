@@ -17,7 +17,7 @@ const CommandInput = React.forwardRef<HTMLDivElement, CommandInputProps>(
     {
       onCommand,
       onVoiceInput,
-      placeholder = "Type or say your command…",
+      placeholder = "Ctrl + /",
       className,
       disabled = false,
     },

@@ -2,7 +2,7 @@ import * as React from "react";
 import { MainLayout } from "@/components/layout/MainLayout";
 import { MindCanvas } from "@/components/mind/MindCanvas";
 import { MindSidebar } from "@/components/mind/MindSidebar";
-import { QuickCreateDialog } from "@/components/mind/QuickCreateDialog";
+import { SearchCommandDrawer } from "@/components/search/SearchCommandDrawer";
 import { MindNode, Connection } from "@/components/mind/types";
 
 const Mind = () => {
@@ -157,7 +157,7 @@ const Mind = () => {
     null,
   );
   const [sidebarOpen, setSidebarOpen] = React.useState(false);
-  const [quickCreateOpen, setQuickCreateOpen] = React.useState(false);
+  const [searchDrawerOpen, setSearchDrawerOpen] = React.useState(false);
 
   // Canvas viewport state
   const [viewport, setViewport] = React.useState({
@@ -195,7 +195,7 @@ const Mind = () => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.shiftKey && e.key === "K") {
         e.preventDefault();
-        setQuickCreateOpen(true);
+        setSearchDrawerOpen(true);
       }
       
       // Escape key to cancel connection
@@ -400,10 +400,10 @@ const Mind = () => {
           />
         )}
 
-        {/* Quick Create Dialog */}
-        <QuickCreateDialog
-          isOpen={quickCreateOpen}
-          onClose={() => setQuickCreateOpen(false)}
+        {/* Search Command Drawer */}
+        <SearchCommandDrawer
+          isOpen={searchDrawerOpen}
+          onClose={() => setSearchDrawerOpen(false)}
           onCreateNode={handleCreateNode}
         />
 
@@ -412,7 +412,7 @@ const Mind = () => {
           <div>• Hold <kbd className="px-1 py-0.5 bg-secondary rounded text-visible font-mono text-xs">Space</kbd> + Drag to pan</div>
           <div>• Click connection points to link nodes</div>
           <div>• Double-click empty space to create node</div>
-          <div>• <kbd className="px-1 py-0.5 bg-secondary rounded text-visible font-mono text-xs">Cmd+Shift+K</kbd> for quick create</div>
+          <div>• <kbd className="px-1 py-0.5 bg-secondary rounded text-visible font-mono text-xs">Ctrl+Shift+K</kbd> for search & create</div>
         </div>
       </div>
     </MainLayout>

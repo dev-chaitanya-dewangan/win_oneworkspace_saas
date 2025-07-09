@@ -434,7 +434,7 @@ export const AiChat = () => {
         </div>
 
         {/* Floating Chat Input - Positioned absolutely at bottom */}
-        <div className="absolute bottom-0 left-0 right-0 border-t border-border bg-background/95 backdrop-blur-sm z-40 shadow-lg">
+        <div className="absolute bottom-0 left-0 right-0 border-t border-border bg-background/95 backdrop-blur-sm z-40 shadow-lg p-0">
             <ChatInput
               onSendMessage={handleSendMessage}
               placeholder="Ask AI anything, @ to mention people or files, # for mind references..."
