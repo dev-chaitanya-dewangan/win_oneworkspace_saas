@@ -389,9 +389,9 @@ export const AiChat = () => {
   };
 
   return (
-    <div className="h-full w-full bg-background text-foreground flex flex-col overflow-hidden">
+    <div className="h-full w-full bg-background text-foreground relative flex flex-col">
       {/* Fixed Header */}
-      <div className="flex-shrink-0 flex items-center justify-between p-3 sm:p-4 border-b border-border bg-card/95 backdrop-blur-sm z-10">
+      <div className="flex-shrink-0 flex items-center justify-between p-3 sm:p-4 border-b border-border bg-card/95 backdrop-blur-sm z-30">
         <div className="flex items-center space-x-2">
           <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-gradient-to-r from-foreground to-muted flex items-center justify-center">
             <span className="text-xs sm:text-sm font-bold text-background">✨</span>
@@ -404,10 +404,10 @@ export const AiChat = () => {
         </div>
       </div>
 
-      {/* Scrollable Messages Area - ONLY this section scrolls */}
-      <div className="flex-1 min-h-0 bg-background relative overflow-hidden">
-        <div className="h-full overflow-y-auto hide-scrollbar">
-          <div className="max-w-4xl mx-auto px-3 sm:px-4 py-4">
+      {/* Scrollable Messages Container - Takes remaining height */}
+      <div className="flex-1 relative overflow-hidden">
+        <div className="absolute inset-0 overflow-y-auto hide-scrollbar">
+          <div className="max-w-4xl mx-auto px-3 sm:px-4 py-4 pb-40">
             {messages.length === 0 && isNewChat ? (
               <div className="flex items-center justify-center min-h-[50vh]">
                 <div className="text-center text-muted-foreground">
@@ -423,7 +423,7 @@ export const AiChat = () => {
                 </div>
               </div>
             ) : (
-              <div className="space-y-4 pb-4">
+              <div className="space-y-4">
                 {messages.map((message) => (
                   <MessageBubble key={message.id} message={message} />
                 ))}
@@ -432,33 +432,17 @@ export const AiChat = () => {
             <div ref={messagesEndRef} />
           </div>
         </div>
-      </div>
 
-      {/* Fixed Chat Input - Does NOT scroll */}
-      <div className="flex-shrink-0 border-t border-border bg-background/95 backdrop-blur-sm z-20">
-        <div className="max-w-4xl mx-auto p-3 sm:p-4">
-          <ChatInput
-            onSendMessage={handleSendMessage}
-            placeholder="Ask AI anything, @ to mention people or files, # for mind references..."
-            className="w-full"
-            popupDirection="up"
-          />
-          
-          {/* Quick Actions - Responsive */}
-          <div className="flex items-center justify-center space-x-2 sm:space-x-4 mt-2 sm:mt-3 text-xs text-muted-foreground">
-            <span className="flex items-center space-x-1">
-              <span>💡</span>
-              <span className="hidden sm:inline">Pro Tips</span>
-            </span>
-            <span className="flex items-center space-x-1">
-              <span>🔍</span>
-              <span className="hidden sm:inline">Search Pages</span>
-            </span>
-            <span className="flex items-center space-x-1">
-              <span>📁</span>
-              <span className="hidden sm:inline">Upload & Analyze</span>
-            </span>
-          </div>
+        {/* Floating Chat Input - Positioned absolutely at bottom */}
+        <div className="absolute bottom-0 left-0 right-0 border-t border-border bg-background/95 backdrop-blur-sm z-40 shadow-lg">
+            <ChatInput
+              onSendMessage={handleSendMessage}
+              placeholder="Ask AI anything, @ to mention people or files, # for mind references..."
+              className="w-full"
+              popupDirection="up"
+            />
+            
+            
         </div>
       </div>
     </div>

@@ -44,7 +44,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({
     <SidebarProvider>
       <OneWorkspaceSidebar />
       <SidebarInset>
-        <div className="flex flex-1 flex-col h-full relative">
+        <div className="flex flex-1 flex-col h-screen overflow-hidden">
           {/* Fixed/Sticky Toolbar at the top */}
           <div className="sticky top-0 z-40 flex-shrink-0">
             <Toolbar
@@ -55,9 +55,9 @@ const MainLayout: React.FC<MainLayoutProps> = ({
             />
           </div>
           
-          {/* Main content area with proper spacing for the fixed header */}
+          {/* Main content area - Let children handle their own scrolling */}
           <main className="flex-1 overflow-hidden">
-            <div className="h-full overflow-y-auto">
+            <div className="h-full overflow-hidden">
               {children}
             </div>
           </main>
