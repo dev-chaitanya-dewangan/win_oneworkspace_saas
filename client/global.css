@@ -286,29 +286,37 @@
     stroke-width: 3;
   }
 
-  /* Enhanced connection styles for mind mapping */
+  /* Enhanced connection styles for mind mapping - Metallic White */
+  .connection-group {
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
   .connection-group:hover .connection-main {
-    stroke: rgba(59, 130, 246, 1) !important;
-    stroke-width: 3 !important;
+    stroke-width: 4 !important;
+    filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.6)) !important;
   }
   
   .connection-group:hover .connection-glow {
-    stroke: rgba(59, 130, 246, 0.6) !important;
-    stroke-width: 8 !important;
+    stroke: rgba(255, 255, 255, 0.8) !important;
+    stroke-width: 12 !important;
+    opacity: 0.9 !important;
   }
   
   .connection-group:hover .connection-point {
-    r: 4 !important;
-    fill: rgba(59, 130, 246, 1) !important;
+    r: 5 !important;
+    stroke-width: 2 !important;
+    filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.8)) !important;
   }
   
   .connection-flow {
-    opacity: 0.7;
+    opacity: 0.6;
   }
   
   .connection-group:hover .connection-flow {
     opacity: 1 !important;
-    animation-duration: 1.5s !important;
+    animation-duration: 2s !important;
+    stroke-width: 3 !important;
   }
   
   .connection-main {
@@ -321,6 +329,50 @@
   
   .connection-point {
     transition: all 0.3s ease;
+  }
+
+  /* Enhanced metallic glow effects */
+  .connection-group:hover {
+    filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.3));
+  }
+
+  /* Wiggle animation for failed connections */
+  @keyframes wiggle {
+    0%, 100% { 
+      transform: translateX(0);
+    }
+    10%, 30%, 50%, 70%, 90% { 
+      transform: translateX(-2px);
+    }
+    20%, 40%, 60%, 80% { 
+      transform: translateX(2px);
+    }
+  }
+
+  .animate-wiggle {
+    animation: wiggle 0.6s ease-in-out;
+  }
+
+  /* Connection snap back animation */
+  @keyframes snapBack {
+    0% {
+      opacity: 1;
+      stroke-dasharray: 5,5;
+    }
+    50% {
+      opacity: 0.5;
+      stroke-dasharray: 10,10;
+      transform: scale(1.1);
+    }
+    100% {
+      opacity: 0;
+      stroke-dasharray: 20,20;
+      transform: scale(0.8);
+    }
+  }
+
+  .animate-snap-back {
+    animation: snapBack 0.8s ease-out forwards;
   }
 
   /* Responsive canvas adjustments */

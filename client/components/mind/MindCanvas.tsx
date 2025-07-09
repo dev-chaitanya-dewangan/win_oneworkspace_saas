@@ -22,6 +22,11 @@ interface MindCanvasProps {
     fromSide: "top" | "bottom" | "left" | "right" | null;
     fromPosition: { x: number; y: number } | null;
   };
+  failedConnection?: {
+    isAnimating: boolean;
+    fromPosition: { x: number; y: number } | null;
+    toPosition: { x: number; y: number } | null;
+  };
   onNodeUpdate: (nodeId: string, updates: Partial<MindNode>) => void;
   onNodeSelect: (nodeId: string) => void;
   onNodeOpenSidebar: (nodeId: string) => void;
@@ -30,6 +35,7 @@ interface MindCanvasProps {
   onCreateNode: (title: string, position?: { x: number; y: number }) => void;
   onConnectionStart: (nodeId: string, side: "top" | "bottom" | "left" | "right", position: { x: number; y: number }) => void;
   onConnectionEnd: (nodeId: string, side: "top" | "bottom" | "left" | "right") => void;
+  onConnectionCancel?: (mousePosition: { x: number; y: number }) => void;
   onViewportChange: (viewport: CanvasViewport) => void;
 }
 
@@ -38,6 +44,7 @@ export const MindCanvas: React.FC<MindCanvasProps> = ({
   connections,
   viewport,
   connectionState,
+  failedConnection,
   onNodeUpdate,
   onNodeSelect,
   onNodeOpenSidebar,
@@ -46,6 +53,7 @@ export const MindCanvas: React.FC<MindCanvasProps> = ({
   onCreateNode,
   onConnectionStart,
   onConnectionEnd,
+  onConnectionCancel,
   onViewportChange,
 }) => {
   const canvasRef = React.useRef<HTMLDivElement>(null);
@@ -62,39 +70,56 @@ export const MindCanvas: React.FC<MindCanvasProps> = ({
     y: number;
   } | null>(null);
   const [isSpacePressed, setIsSpacePressed] = React.useState(false);
+  const [mousePosition, setMousePosition] = React.useState<{ x: number; y: number }>({ x: 0, y: 0 });
 
   // Keyboard event handlers
   React.useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.code === "Space") {
+      if (e.code === "Space" && !e.repeat) {
         e.preventDefault();
         setIsSpacePressed(true);
+        document.body.style.cursor = "grab";
       }
     };
 
     const handleKeyUp = (e: KeyboardEvent) => {
       if (e.code === "Space") {
+        e.preventDefault();
         setIsSpacePressed(false);
         setIsPanning(false);
         setPanStart(null);
+        document.body.style.cursor = "default";
       }
     };
 
-    window.addEventListener("keydown", handleKeyDown);
-    window.addEventListener("keyup", handleKeyUp);
+    document.addEventListener("keydown", handleKeyDown);
+    document.addEventListener("keyup", handleKeyUp);
 
     return () => {
-      window.removeEventListener("keydown", handleKeyDown);
-      window.removeEventListener("keyup", handleKeyUp);
+      document.removeEventListener("keydown", handleKeyDown);
+      document.removeEventListener("keyup", handleKeyUp);
+      document.body.style.cursor = "default";
     };
   }, []);
 
   // Handle canvas panning and double-click to create nodes
   const handleMouseDown = (e: React.MouseEvent) => {
     if (e.target === e.currentTarget) {
-      if (isSpacePressed) {
+      if (connectionState.isConnecting && onConnectionCancel) {
+        // Cancel connection attempt with snap-back animation
+        const rect = canvasRef.current?.getBoundingClientRect();
+        if (rect) {
+          const mousePos = {
+            x: (e.clientX - rect.left - viewport.x) / viewport.zoom,
+            y: (e.clientY - rect.top - viewport.y) / viewport.zoom,
+          };
+          onConnectionCancel(mousePos);
+        }
+      } else if (isSpacePressed) {
+        e.preventDefault();
         setIsPanning(true);
         setPanStart({ x: e.clientX - viewport.x, y: e.clientY - viewport.y });
+        document.body.style.cursor = "grabbing";
       }
     }
   };
@@ -111,7 +136,17 @@ export const MindCanvas: React.FC<MindCanvasProps> = ({
   };
 
   const handleMouseMove = (e: React.MouseEvent) => {
+    // Update mouse position for connection preview
+    const rect = canvasRef.current?.getBoundingClientRect();
+    if (rect) {
+      setMousePosition({
+        x: (e.clientX - rect.left - viewport.x) / viewport.zoom,
+        y: (e.clientY - rect.top - viewport.y) / viewport.zoom,
+      });
+    }
+
     if (isPanning && panStart && isSpacePressed) {
+      e.preventDefault();
       onViewportChange({
         ...viewport,
         x: e.clientX - panStart.x,
@@ -119,7 +154,6 @@ export const MindCanvas: React.FC<MindCanvasProps> = ({
       });
     } else if (dragState.isDragging && dragState.nodeId && dragState.offset) {
       e.preventDefault();
-      const rect = canvasRef.current?.getBoundingClientRect();
       if (rect) {
         const newPosition = {
           x:
@@ -135,9 +169,14 @@ export const MindCanvas: React.FC<MindCanvasProps> = ({
   };
 
   const handleMouseUp = () => {
-    setIsPanning(false);
-    setPanStart(null);
-    setDragState({ isDragging: false });
+    if (isPanning) {
+      setIsPanning(false);
+      setPanStart(null);
+      document.body.style.cursor = isSpacePressed ? "grab" : "default";
+    }
+    if (dragState.isDragging) {
+      setDragState({ isDragging: false });
+    }
   };
 
   // Handle zoom (trackpad pinch and wheel)
@@ -193,6 +232,7 @@ export const MindCanvas: React.FC<MindCanvasProps> = ({
   // Handle node drag start
   const handleNodeDragStart = (nodeId: string, e: React.MouseEvent) => {
     e.preventDefault();
+    e.stopPropagation();
     const node = nodes.find((n) => n.id === nodeId);
     if (node) {
       const canvasRect = canvasRef.current?.getBoundingClientRect();
@@ -217,7 +257,14 @@ export const MindCanvas: React.FC<MindCanvasProps> = ({
   // Global mouse handlers for proper drag behavior
   React.useEffect(() => {
     const handleGlobalMouseMove = (e: MouseEvent) => {
-      if (dragState.isDragging && dragState.nodeId && dragState.offset) {
+      if (isPanning && panStart && isSpacePressed) {
+        e.preventDefault();
+        onViewportChange({
+          ...viewport,
+          x: e.clientX - panStart.x,
+          y: e.clientY - panStart.y,
+        });
+      } else if (dragState.isDragging && dragState.nodeId && dragState.offset) {
         e.preventDefault();
         const rect = canvasRef.current?.getBoundingClientRect();
         if (rect) {
@@ -238,11 +285,14 @@ export const MindCanvas: React.FC<MindCanvasProps> = ({
       if (dragState.isDragging) {
         setDragState({ isDragging: false });
       }
-      setIsPanning(false);
-      setPanStart(null);
+      if (isPanning) {
+        setIsPanning(false);
+        setPanStart(null);
+        document.body.style.cursor = isSpacePressed ? "grab" : "default";
+      }
     };
 
-    if (dragState.isDragging) {
+    if (dragState.isDragging || isPanning) {
       document.addEventListener("mousemove", handleGlobalMouseMove);
       document.addEventListener("mouseup", handleGlobalMouseUp);
     }
@@ -255,8 +305,12 @@ export const MindCanvas: React.FC<MindCanvasProps> = ({
     dragState.isDragging,
     dragState.nodeId,
     dragState.offset,
+    isPanning,
+    panStart,
+    isSpacePressed,
     viewport,
     onNodeUpdate,
+    onViewportChange,
   ]);
 
   // Close context menu when clicking elsewhere
@@ -353,16 +407,39 @@ export const MindCanvas: React.FC<MindCanvasProps> = ({
             transform: `translate(${viewport.x}px, ${viewport.y}px) scale(${viewport.zoom})`,
           }}
         >
-          {/* Grid Background - Black with white dots */}
+          {/* Enhanced Grid Background - Black with tinted transparent dots */}
           <div
-            className="absolute inset-0 opacity-30"
+            className="absolute inset-0"
             style={{
-              width: "5000px",
-              height: "5000px",
-              left: "-2500px",
-              top: "-2500px",
-              backgroundImage: "radial-gradient(circle, rgba(255,255,255,0.2) 1px, transparent 1px)",
-              backgroundSize: "50px 50px",
+              width: "10000px",
+              height: "10000px",
+              left: "-5000px",
+              top: "-5000px",
+              backgroundColor: "#000000",
+              backgroundImage: `
+                radial-gradient(circle, rgba(59, 130, 246, 0.3) 1px, transparent 1px),
+                radial-gradient(circle, rgba(147, 51, 234, 0.2) 1px, transparent 1px),
+                radial-gradient(circle, rgba(236, 72, 153, 0.2) 1px, transparent 1px)
+              `,
+              backgroundSize: "50px 50px, 100px 100px, 75px 75px",
+              backgroundPosition: "0 0, 25px 25px, 37.5px 37.5px",
+              opacity: 0.4,
+            }}
+          />
+          
+          {/* Major grid lines */}
+          <div
+            className="absolute inset-0 opacity-10"
+            style={{
+              width: "10000px",
+              height: "10000px",
+              left: "-5000px",
+              top: "-5000px",
+              backgroundImage: `
+                linear-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.1) 1px, transparent 1px)
+              `,
+              backgroundSize: "200px 200px",
             }}
           />
 
@@ -370,12 +447,58 @@ export const MindCanvas: React.FC<MindCanvasProps> = ({
           <svg
             className="absolute inset-0 pointer-events-none"
             style={{
-              width: "5000px",
-              height: "5000px",
-              left: "-2500px",
-              top: "-2500px",
+              width: "10000px",
+              height: "10000px",
+              left: "-5000px",
+              top: "-5000px",
             }}
           >
+            <defs>
+              {/* Main arrow marker - White Metallic */}
+              <marker
+                id="arrowhead"
+                markerWidth="12"
+                markerHeight="10"
+                refX="11"
+                refY="5"
+                orient="auto"
+                markerUnits="strokeWidth"
+              >
+                <path
+                  d="M 0 0 L 12 5 L 0 10 z"
+                  fill="rgba(255, 255, 255, 0.9)"
+                  stroke="rgba(255, 255, 255, 0.6)"
+                  strokeWidth="0.5"
+                />
+              </marker>
+              
+              {/* Preview arrow marker - White Metallic with glow */}
+              <marker
+                id="arrowhead-preview"
+                markerWidth="12"
+                markerHeight="10"
+                refX="11"
+                refY="5"
+                orient="auto"
+                markerUnits="strokeWidth"
+              >
+                <path
+                  d="M 0 0 L 12 5 L 0 10 z"
+                  fill="rgba(255, 255, 255, 0.8)"
+                  stroke="rgba(255, 255, 255, 0.4)"
+                  strokeWidth="0.5"
+                  filter="drop-shadow(0 0 3px rgba(255, 255, 255, 0.6))"
+                />
+              </marker>
+              
+              {/* Metallic gradient for arrows */}
+              <linearGradient id="metallic-arrow-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stopColor="rgba(255, 255, 255, 1)" />
+                <stop offset="50%" stopColor="rgba(240, 240, 240, 1)" />
+                <stop offset="100%" stopColor="rgba(220, 220, 220, 0.9)" />
+              </linearGradient>
+            </defs>
+
             {connections.map((connection) => {
               const fromNode = nodes.find(
                 (n) => n.id === connection.fromNodeId,
@@ -393,15 +516,33 @@ export const MindCanvas: React.FC<MindCanvasProps> = ({
               );
             })}
 
-            {/* Active connection preview */}
+            {/* Active connection preview with arrow - White Metallic */}
             {connectionState.isConnecting && connectionState.fromPosition && (
-              <path
-                d={`M ${connectionState.fromPosition.x} ${connectionState.fromPosition.y} L ${connectionState.fromPosition.x + 50} ${connectionState.fromPosition.y + 50}`}
-                stroke="rgba(59, 130, 246, 0.8)"
-                strokeWidth="2"
-                fill="none"
-                strokeDasharray="5,5"
+              <line
+                x1={connectionState.fromPosition.x}
+                y1={connectionState.fromPosition.y}
+                x2={mousePosition.x}
+                y2={mousePosition.y}
+                stroke="rgba(255, 255, 255, 0.8)"
+                strokeWidth="3"
+                strokeDasharray="8,4"
+                markerEnd="url(#arrowhead-preview)"
                 className="animate-pulse"
+                filter="drop-shadow(0 0 4px rgba(255, 255, 255, 0.5))"
+              />
+            )}
+
+            {/* Failed connection snap-back animation */}
+            {failedConnection?.isAnimating && failedConnection.fromPosition && failedConnection.toPosition && (
+              <line
+                x1={failedConnection.fromPosition.x}
+                y1={failedConnection.fromPosition.y}
+                x2={failedConnection.toPosition.x}
+                y2={failedConnection.toPosition.y}
+                stroke="rgba(239, 68, 68, 0.8)"
+                strokeWidth="2"
+                strokeDasharray="5,5"
+                className="animate-snap-back animate-wiggle"
               />
             )}
           </svg>

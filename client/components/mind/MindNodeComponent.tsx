@@ -52,6 +52,37 @@ const getIconForNode = (node: MindNode) => {
   return FileText;
 };
 
+// Add function to get color styles
+const getColorStyles = (color: string) => {
+  // If it's a hex color, use it directly
+  if (color.startsWith('#')) {
+    return {
+      backgroundColor: `${color}20`, // 20% opacity for background
+      borderColor: color,
+      boxShadow: `0 0 20px ${color}30`, // Subtle glow effect
+    };
+  }
+  
+  // Predefined color themes
+  const colorMap: Record<string, { bg: string; border: string; shadow: string }> = {
+    blue: { bg: 'rgba(59, 130, 246, 0.15)', border: '#3b82f6', shadow: 'rgba(59, 130, 246, 0.3)' },
+    purple: { bg: 'rgba(139, 92, 246, 0.15)', border: '#8b5cf6', shadow: 'rgba(139, 92, 246, 0.3)' },
+    pink: { bg: 'rgba(236, 72, 153, 0.15)', border: '#ec4899', shadow: 'rgba(236, 72, 153, 0.3)' },
+    teal: { bg: 'rgba(20, 184, 166, 0.15)', border: '#14b8a6', shadow: 'rgba(20, 184, 166, 0.3)' },
+    red: { bg: 'rgba(239, 68, 68, 0.15)', border: '#ef4444', shadow: 'rgba(239, 68, 68, 0.3)' },
+    green: { bg: 'rgba(16, 185, 129, 0.15)', border: '#10b981', shadow: 'rgba(16, 185, 129, 0.3)' },
+    orange: { bg: 'rgba(249, 115, 22, 0.15)', border: '#f97316', shadow: 'rgba(249, 115, 22, 0.3)' },
+    gray: { bg: 'rgba(107, 114, 128, 0.15)', border: '#6b7280', shadow: 'rgba(107, 114, 128, 0.3)' },
+  };
+  
+  const colorTheme = colorMap[color] || colorMap.blue;
+  return {
+    backgroundColor: colorTheme.bg,
+    borderColor: colorTheme.border,
+    boxShadow: `0 0 20px ${colorTheme.shadow}`,
+  };
+};
+
 export const MindNodeComponent: React.FC<MindNodeComponentProps> = ({
   node,
   onSelect,
@@ -77,20 +108,55 @@ export const MindNodeComponent: React.FC<MindNodeComponentProps> = ({
 
     const rect = nodeRef.current?.getBoundingClientRect();
     if (rect && onConnectionStart) {
-      const position = {
-        x: rect.left + rect.width / 2,
-        y: rect.top + rect.height / 2,
-      };
+      // Calculate exact position based on side
+      let position;
+      switch (side) {
+        case "top":
+          position = {
+            x: node.position.x + node.size.width / 2,
+            y: node.position.y,
+          };
+          break;
+        case "bottom":
+          position = {
+            x: node.position.x + node.size.width / 2,
+            y: node.position.y + node.size.height,
+          };
+          break;
+        case "left":
+          position = {
+            x: node.position.x,
+            y: node.position.y + node.size.height / 2,
+          };
+          break;
+        case "right":
+          position = {
+            x: node.position.x + node.size.width,
+            y: node.position.y + node.size.height / 2,
+          };
+          break;
+      }
       onConnectionStart(node.id, side, position);
     }
   };
 
   const handleConnectionEnd = (e: React.MouseEvent, side: "top" | "bottom" | "left" | "right") => {
     e.stopPropagation();
-    if (globalIsConnecting && onConnectionEnd) {
+    if (globalIsConnecting && globalConnectionStart?.nodeId !== node.id && onConnectionEnd) {
       onConnectionEnd(node.id, side);
     }
     setIsConnecting(false);
+  };
+
+  // Handle mouse enter for connection targets
+  const handleMouseEnterForConnection = (e: React.MouseEvent, side: "top" | "bottom" | "left" | "right") => {
+    if (globalIsConnecting && globalConnectionStart?.nodeId !== node.id) {
+      e.stopPropagation();
+      const rect = nodeRef.current?.getBoundingClientRect();
+      if (rect && onConnectionEnd) {
+        onConnectionEnd(node.id, side);
+      }
+    }
   };
 
   React.useEffect(() => {
@@ -147,6 +213,7 @@ export const MindNodeComponent: React.FC<MindNodeComponentProps> = ({
             node.title === "No title makes no sense" && "border-dashed",
             globalIsConnecting && "glow-blue",
           )}
+          style={getColorStyles(node.color)}
         >
           {/* Header with Icon and Title */}
           <div className="flex items-start justify-between mb-2">
@@ -313,31 +380,54 @@ export const MindNodeComponent: React.FC<MindNodeComponentProps> = ({
           )}
 
           {/* Connection Border Handles */}
-          {isHovered && (
+          {(isHovered || globalIsConnecting) && (
             <>
+              {/* Top Connection Point */}
               <div
-                className="absolute -top-1 left-1/2 w-3 h-3 bg-blue-500 rounded-full transform -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity cursor-crosshair z-10 hover:bg-blue-400"
+                className={cn(
+                  "absolute -top-1.5 left-1/2 w-4 h-4 bg-blue-500 rounded-full transform -translate-x-1/2 transition-all duration-200 cursor-crosshair z-20 border-2 border-white shadow-lg",
+                  isHovered ? "opacity-80 scale-100" : "opacity-60 scale-75",
+                  globalIsConnecting && globalConnectionStart?.nodeId !== node.id ? "opacity-100 scale-110 glow-blue animate-pulse" : "",
+                )}
                 onMouseDown={(e) => handleConnectionStart(e, "top")}
-                onMouseUp={(e) => handleConnectionEnd(e, "top")}
-                title="Drag to connect"
+                onMouseEnter={(e) => handleMouseEnterForConnection(e, "top")}
+                title="Click and drag to connect"
               />
+              
+              {/* Bottom Connection Point */}
               <div
-                className="absolute -bottom-1 left-1/2 w-3 h-3 bg-blue-500 rounded-full transform -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity cursor-crosshair z-10 hover:bg-blue-400"
+                className={cn(
+                  "absolute -bottom-1.5 left-1/2 w-4 h-4 bg-blue-500 rounded-full transform -translate-x-1/2 transition-all duration-200 cursor-crosshair z-20 border-2 border-white shadow-lg",
+                  isHovered ? "opacity-80 scale-100" : "opacity-60 scale-75",
+                  globalIsConnecting && globalConnectionStart?.nodeId !== node.id ? "opacity-100 scale-110 glow-blue animate-pulse" : "",
+                )}
                 onMouseDown={(e) => handleConnectionStart(e, "bottom")}
-                onMouseUp={(e) => handleConnectionEnd(e, "bottom")}
-                title="Drag to connect"
+                onMouseEnter={(e) => handleMouseEnterForConnection(e, "bottom")}
+                title="Click and drag to connect"
               />
+              
+              {/* Left Connection Point */}
               <div
-                className="absolute top-1/2 -left-1 w-3 h-3 bg-blue-500 rounded-full transform -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity cursor-crosshair z-10 hover:bg-blue-400"
+                className={cn(
+                  "absolute top-1/2 -left-1.5 w-4 h-4 bg-blue-500 rounded-full transform -translate-y-1/2 transition-all duration-200 cursor-crosshair z-20 border-2 border-white shadow-lg",
+                  isHovered ? "opacity-80 scale-100" : "opacity-60 scale-75",
+                  globalIsConnecting && globalConnectionStart?.nodeId !== node.id ? "opacity-100 scale-110 glow-blue animate-pulse" : "",
+                )}
                 onMouseDown={(e) => handleConnectionStart(e, "left")}
-                onMouseUp={(e) => handleConnectionEnd(e, "left")}
-                title="Drag to connect"
+                onMouseEnter={(e) => handleMouseEnterForConnection(e, "left")}
+                title="Click and drag to connect"
               />
+              
+              {/* Right Connection Point */}
               <div
-                className="absolute top-1/2 -right-1 w-3 h-3 bg-blue-500 rounded-full transform -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity cursor-crosshair z-10 hover:bg-blue-400"
+                className={cn(
+                  "absolute top-1/2 -right-1.5 w-4 h-4 bg-blue-500 rounded-full transform -translate-y-1/2 transition-all duration-200 cursor-crosshair z-20 border-2 border-white shadow-lg",
+                  isHovered ? "opacity-80 scale-100" : "opacity-60 scale-75",
+                  globalIsConnecting && globalConnectionStart?.nodeId !== node.id ? "opacity-100 scale-110 glow-blue animate-pulse" : "",
+                )}
                 onMouseDown={(e) => handleConnectionStart(e, "right")}
-                onMouseUp={(e) => handleConnectionEnd(e, "right")}
-                title="Drag to connect"
+                onMouseEnter={(e) => handleMouseEnterForConnection(e, "right")}
+                title="Click and drag to connect"
               />
             </>
           )}

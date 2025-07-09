@@ -37,7 +37,7 @@ export const ConnectionLine: React.FC<ConnectionLineProps> = ({
   // Calculate control points for smooth curves
   const getControlPoints = (from: { x: number; y: number }, to: { x: number; y: number }, fromSide: string, toSide: string) => {
     const distance = Math.sqrt(Math.pow(to.x - from.x, 2) + Math.pow(to.y - from.y, 2));
-    const offset = Math.min(distance * 0.4, 150); // Adaptive curve intensity
+    const offset = Math.min(distance * 0.4, 120); // Slightly tighter curves
 
     let cp1 = { x: from.x, y: from.y };
     let cp2 = { x: to.x, y: to.y };
@@ -87,87 +87,118 @@ export const ConnectionLine: React.FC<ConnectionLineProps> = ({
 
   return (
     <g className="connection-group">
-      {/* Glow effect background */}
+      <defs>
+        {/* Metallic White Gradient for main line */}
+        <linearGradient id={`metallic-gradient-${connection.id}`} x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor="rgba(255, 255, 255, 0.9)" />
+          <stop offset="25%" stopColor="rgba(240, 240, 240, 1)" />
+          <stop offset="50%" stopColor="rgba(255, 255, 255, 1)" />
+          <stop offset="75%" stopColor="rgba(220, 220, 220, 0.9)" />
+          <stop offset="100%" stopColor="rgba(255, 255, 255, 0.8)" />
+        </linearGradient>
+
+        {/* Flowing metallic effect */}
+        <linearGradient id={`flowing-metallic-${connection.id}`} x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stopColor="rgba(255, 255, 255, 0)" />
+          <stop offset="30%" stopColor="rgba(255, 255, 255, 0.3)" />
+          <stop offset="50%" stopColor="rgba(255, 255, 255, 0.9)" />
+          <stop offset="70%" stopColor="rgba(255, 255, 255, 0.3)" />
+          <stop offset="100%" stopColor="rgba(255, 255, 255, 0)" />
+        </linearGradient>
+
+        {/* Enhanced Arrow Marker - Metallic White */}
+        <marker
+          id={`arrowhead-${connection.id}`}
+          markerWidth="12"
+          markerHeight="10"
+          refX="11"
+          refY="5"
+          orient="auto"
+          markerUnits="strokeWidth"
+        >
+          <path
+            d="M 0 0 L 12 5 L 0 10 z"
+            fill="url(#metallic-gradient-arrow)"
+            stroke="rgba(255, 255, 255, 0.8)"
+            strokeWidth="0.5"
+          />
+        </marker>
+
+        {/* Arrow gradient */}
+        <linearGradient id="metallic-gradient-arrow" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor="rgba(255, 255, 255, 1)" />
+          <stop offset="50%" stopColor="rgba(240, 240, 240, 1)" />
+          <stop offset="100%" stopColor="rgba(220, 220, 220, 0.9)" />
+        </linearGradient>
+
+        {/* Drop shadow filter for metallic effect */}
+        <filter id={`metallic-shadow-${connection.id}`} x="-50%" y="-50%" width="200%" height="200%">
+          <feDropShadow dx="0" dy="1" stdDeviation="1" floodColor="rgba(255, 255, 255, 0.3)" />
+          <feDropShadow dx="0" dy="-1" stdDeviation="0.5" floodColor="rgba(0, 0, 0, 0.2)" />
+        </filter>
+      </defs>
+
+      {/* Outer glow effect */}
       <path
         d={pathData}
-        stroke="rgba(59, 130, 246, 0.3)"
-        strokeWidth="6"
+        stroke="rgba(255, 255, 255, 0.4)"
+        strokeWidth="8"
         fill="none"
         className="connection-glow"
-        filter="blur(2px)"
+        filter="blur(3px)"
+        opacity="0.6"
       />
       
-      {/* Main connection line */}
+      {/* Main metallic connection line */}
       <path
         d={pathData}
-        stroke="rgba(255, 255, 255, 0.8)"
-        strokeWidth="2"
+        stroke={`url(#metallic-gradient-${connection.id})`}
+        strokeWidth="3"
         fill="none"
         className="connection-main"
         strokeLinecap="round"
+        strokeLinejoin="round"
+        filter={`url(#metallic-shadow-${connection.id})`}
+        markerEnd={`url(#arrowhead-${connection.id})`}
       />
       
-      {/* Animated flowing effect */}
+      {/* Animated flowing metallic effect */}
       <path
         d={pathData}
-        stroke="url(#flowing-gradient)"
+        stroke={`url(#flowing-metallic-${connection.id})`}
         strokeWidth="2"
         fill="none"
-        strokeDasharray="10 10"
+        strokeDasharray="8 12"
         strokeLinecap="round"
         className="connection-flow"
+        opacity="0.8"
         style={{
-          animation: `${animationId} 3s linear infinite`,
+          animation: `${animationId} 4s linear infinite`,
         }}
       />
 
-      {/* Connection endpoints - small circles */}
+      {/* Connection start point - metallic */}
       <circle
         cx={fromPoint.x}
         cy={fromPoint.y}
-        r="3"
-        fill="rgba(59, 130, 246, 0.8)"
+        r="4"
+        fill="url(#metallic-gradient-arrow)"
+        stroke="rgba(255, 255, 255, 0.8)"
+        strokeWidth="1"
         className="connection-point from-point"
+        filter={`url(#metallic-shadow-${connection.id})`}
       />
+
+      {/* Connection end point - metallic */}
       <circle
         cx={toPoint.x}
         cy={toPoint.y}
         r="3"
-        fill="rgba(59, 130, 246, 0.8)"
+        fill="url(#metallic-gradient-arrow)"
+        stroke="rgba(255, 255, 255, 0.6)"
+        strokeWidth="1"
         className="connection-point to-point"
-      />
-
-      {/* Arrowhead */}
-      <defs>
-        <marker
-          id={`arrowhead-${connection.id}`}
-          markerWidth="10"
-          markerHeight="7"
-          refX="9"
-          refY="3.5"
-          orient="auto"
-        >
-          <polygon
-            points="0 0, 10 3.5, 0 7"
-            fill="rgba(255, 255, 255, 0.8)"
-          />
-        </marker>
-        
-        {/* Flowing gradient */}
-        <linearGradient id="flowing-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
-          <stop offset="0%" stopColor="rgba(59, 130, 246, 0)" />
-          <stop offset="50%" stopColor="rgba(59, 130, 246, 1)" />
-          <stop offset="100%" stopColor="rgba(59, 130, 246, 0)" />
-        </linearGradient>
-      </defs>
-
-      {/* Add arrowhead to main line */}
-      <path
-        d={pathData}
-        stroke="transparent"
-        strokeWidth="2"
-        fill="none"
-        markerEnd={`url(#arrowhead-${connection.id})`}
+        filter={`url(#metallic-shadow-${connection.id})`}
       />
 
       {/* Dynamic styles for animations */}
@@ -175,9 +206,14 @@ export const ConnectionLine: React.FC<ConnectionLineProps> = ({
         @keyframes ${animationId} {
           0% {
             stroke-dashoffset: 20;
+            opacity: 0.4;
+          }
+          50% {
+            opacity: 0.9;
           }
           100% {
             stroke-dashoffset: 0;
+            opacity: 0.4;
           }
         }
       `}</style>

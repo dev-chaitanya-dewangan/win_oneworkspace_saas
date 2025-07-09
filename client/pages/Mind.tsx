@@ -179,6 +179,17 @@ const Mind = () => {
     fromPosition: null,
   });
 
+  // Failed connection animation state
+  const [failedConnection, setFailedConnection] = React.useState<{
+    isAnimating: boolean;
+    fromPosition: { x: number; y: number } | null;
+    toPosition: { x: number; y: number } | null;
+  }>({
+    isAnimating: false,
+    fromPosition: null,
+    toPosition: null,
+  });
+
   // Global keyboard shortcuts
   React.useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -319,6 +330,34 @@ const Mind = () => {
     });
   };
 
+  const handleConnectionCancel = (mousePosition: { x: number; y: number }) => {
+    if (connectionState.isConnecting && connectionState.fromPosition) {
+      // Start snap-back animation
+      setFailedConnection({
+        isAnimating: true,
+        fromPosition: connectionState.fromPosition,
+        toPosition: mousePosition,
+      });
+
+      // Clear the animation after it completes
+      setTimeout(() => {
+        setFailedConnection({
+          isAnimating: false,
+          fromPosition: null,
+          toPosition: null,
+        });
+      }, 800);
+    }
+
+    // Reset connection state
+    setConnectionState({
+      isConnecting: false,
+      fromNodeId: null,
+      fromSide: null,
+      fromPosition: null,
+    });
+  };
+
   const handleViewportChange = (newViewport: { x: number; y: number; zoom: number }) => {
     setViewport(newViewport);
   };
@@ -336,6 +375,7 @@ const Mind = () => {
           connections={connections}
           viewport={viewport}
           connectionState={connectionState}
+          failedConnection={failedConnection}
           onNodeUpdate={handleNodeUpdate}
           onNodeSelect={handleNodeSelect}
           onNodeOpenSidebar={handleNodeOpenSidebar}
@@ -344,6 +384,7 @@ const Mind = () => {
           onCreateNode={handleCreateNode}
           onConnectionStart={handleConnectionStart}
           onConnectionEnd={handleConnectionEnd}
+          onConnectionCancel={handleConnectionCancel}
           onViewportChange={handleViewportChange}
         />
 

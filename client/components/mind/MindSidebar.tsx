@@ -54,6 +54,10 @@ export const MindSidebar: React.FC<MindSidebarProps> = ({
   React.useEffect(() => {
     setTitle(node.title);
     setContent(node.content);
+    // Update custom color if node has a hex color
+    if (node.color.startsWith('#')) {
+      setCustomColor(node.color);
+    }
   }, [node]);
 
   const handleSave = () => {
@@ -64,8 +68,13 @@ export const MindSidebar: React.FC<MindSidebarProps> = ({
   };
 
   const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    // Preserve all internal spaces
+    // Allow all characters including spaces - no filtering
     setTitle(e.target.value);
+  };
+
+  const handleContentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    // Allow all characters including spaces - no filtering
+    setContent(e.target.value);
   };
 
   const handleAddTag = () => {
@@ -184,7 +193,7 @@ export const MindSidebar: React.FC<MindSidebarProps> = ({
               </label>
               <Textarea
                 value={content}
-                onChange={(e) => setContent(e.target.value)}
+                onChange={handleContentChange}
                 placeholder="Enter node content..."
                 rows={6}
                 className="metallic-base bg-secondary/50 border-border/30 text-visible focus:border-accent placeholder:text-muted-foreground resize-none"
@@ -233,6 +242,87 @@ export const MindSidebar: React.FC<MindSidebarProps> = ({
                 >
                   Add
                 </Button>
+              </div>
+            </div>
+
+            <Separator className="bg-border/30" />
+
+            {/* Collaborators */}
+            <div className="space-y-3">
+              <label className="text-sm font-medium text-secondary-visible flex items-center">
+                <Users className="h-4 w-4 mr-1" />
+                Collaborators ({node.collaborators.length})
+              </label>
+
+              <div className="space-y-2">
+                {node.collaborators.map((collaborator) => (
+                  <div
+                    key={collaborator.id}
+                    className="flex items-center justify-between p-3 metallic-base bg-secondary/30 rounded-lg border border-border/20"
+                  >
+                    <div className="flex items-center space-x-2">
+                      <Avatar className="h-6 w-6">
+                        <AvatarFallback
+                          className={cn(
+                            "text-xs",
+                            collaborator.isActive
+                              ? "bg-green-600 text-white"
+                              : "bg-secondary text-visible",
+                          )}
+                        >
+                          {collaborator.avatar}
+                        </AvatarFallback>
+                      </Avatar>
+                      <span className="text-sm text-secondary-visible">
+                        {collaborator.name}
+                      </span>
+                      {collaborator.isActive && (
+                        <div className="w-2 h-2 bg-green-500 rounded-full glow-green" />
+                      )}
+                    </div>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-6 w-6 p-0 hover:bg-accent/50 text-muted-foreground hover:text-visible"
+                    >
+                      <ExternalLink className="h-3 w-3" />
+                    </Button>
+                  </div>
+                ))}
+              </div>
+
+              <Button
+                variant="outline"
+                size="sm"
+                className="w-full metallic-button border-border/30 text-visible hover:bg-accent/20"
+              >
+                <Users className="h-4 w-4 mr-2" />
+                Invite Collaborator
+              </Button>
+            </div>
+
+            <Separator className="bg-border/30" />
+
+            {/* Metadata */}
+            <div className="space-y-3">
+              <label className="text-sm font-medium text-secondary-visible flex items-center">
+                <Clock className="h-4 w-4 mr-1" />
+                Details
+              </label>
+
+              <div className="space-y-2 text-sm text-muted-visible bg-secondary/20 rounded-lg p-3 border border-border/20">
+                <div className="flex justify-between">
+                  <span>Created:</span>
+                  <span>2 days ago</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Modified:</span>
+                  <span>1 hour ago</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Connections:</span>
+                  <span>3 links</span>
+                </div>
               </div>
             </div>
 
@@ -317,87 +407,6 @@ export const MindSidebar: React.FC<MindSidebarProps> = ({
                     </div>
                   </PopoverContent>
                 </Popover>
-              </div>
-            </div>
-
-            <Separator className="bg-border/30" />
-
-            {/* Collaborators */}
-            <div className="space-y-3">
-              <label className="text-sm font-medium text-secondary-visible flex items-center">
-                <Users className="h-4 w-4 mr-1" />
-                Collaborators ({node.collaborators.length})
-              </label>
-
-              <div className="space-y-2">
-                {node.collaborators.map((collaborator) => (
-                  <div
-                    key={collaborator.id}
-                    className="flex items-center justify-between p-3 metallic-base bg-secondary/30 rounded-lg border border-border/20"
-                  >
-                    <div className="flex items-center space-x-2">
-                      <Avatar className="h-6 w-6">
-                        <AvatarFallback
-                          className={cn(
-                            "text-xs",
-                            collaborator.isActive
-                              ? "bg-green-600 text-white"
-                              : "bg-secondary text-visible",
-                          )}
-                        >
-                          {collaborator.avatar}
-                        </AvatarFallback>
-                      </Avatar>
-                      <span className="text-sm text-secondary-visible">
-                        {collaborator.name}
-                      </span>
-                      {collaborator.isActive && (
-                        <div className="w-2 h-2 bg-green-500 rounded-full glow-green" />
-                      )}
-                    </div>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="h-6 w-6 p-0 hover:bg-accent/50 text-muted-foreground hover:text-visible"
-                    >
-                      <ExternalLink className="h-3 w-3" />
-                    </Button>
-                  </div>
-                ))}
-              </div>
-
-              <Button
-                variant="outline"
-                size="sm"
-                className="w-full metallic-button border-border/30 text-visible hover:bg-accent/20"
-              >
-                <Users className="h-4 w-4 mr-2" />
-                Invite Collaborator
-              </Button>
-            </div>
-
-            <Separator className="bg-border/30" />
-
-            {/* Metadata */}
-            <div className="space-y-3">
-              <label className="text-sm font-medium text-secondary-visible flex items-center">
-                <Clock className="h-4 w-4 mr-1" />
-                Details
-              </label>
-
-              <div className="space-y-2 text-sm text-muted-visible bg-secondary/20 rounded-lg p-3 border border-border/20">
-                <div className="flex justify-between">
-                  <span>Created:</span>
-                  <span>2 days ago</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>Modified:</span>
-                  <span>1 hour ago</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>Connections:</span>
-                  <span>3 links</span>
-                </div>
               </div>
             </div>
           </div>
