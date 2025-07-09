@@ -15,30 +15,40 @@ import { CanvasToolbar } from "./CanvasToolbar";
 interface MindCanvasProps {
   nodes: MindNode[];
   connections: Connection[];
+  viewport: CanvasViewport;
+  connectionState: {
+    isConnecting: boolean;
+    fromNodeId: string | null;
+    fromSide: "top" | "bottom" | "left" | "right" | null;
+    fromPosition: { x: number; y: number } | null;
+  };
   onNodeUpdate: (nodeId: string, updates: Partial<MindNode>) => void;
   onNodeSelect: (nodeId: string) => void;
   onNodeOpenSidebar: (nodeId: string) => void;
   onDeleteNode: (nodeId: string) => void;
   onDuplicateNode: (nodeId: string) => void;
   onCreateNode: (title: string, position?: { x: number; y: number }) => void;
+  onConnectionStart: (nodeId: string, side: "top" | "bottom" | "left" | "right", position: { x: number; y: number }) => void;
+  onConnectionEnd: (nodeId: string, side: "top" | "bottom" | "left" | "right") => void;
+  onViewportChange: (viewport: CanvasViewport) => void;
 }
 
 export const MindCanvas: React.FC<MindCanvasProps> = ({
   nodes,
   connections,
+  viewport,
+  connectionState,
   onNodeUpdate,
   onNodeSelect,
   onNodeOpenSidebar,
   onDeleteNode,
   onDuplicateNode,
   onCreateNode,
+  onConnectionStart,
+  onConnectionEnd,
+  onViewportChange,
 }) => {
   const canvasRef = React.useRef<HTMLDivElement>(null);
-  const [viewport, setViewport] = React.useState<CanvasViewport>({
-    x: 0,
-    y: 0,
-    zoom: 1,
-  });
   const [dragState, setDragState] = React.useState<DragState>({
     isDragging: false,
   });
@@ -52,11 +62,6 @@ export const MindCanvas: React.FC<MindCanvasProps> = ({
     y: number;
   } | null>(null);
   const [isSpacePressed, setIsSpacePressed] = React.useState(false);
-  const [isConnecting, setIsConnecting] = React.useState(false);
-  const [connectionStart, setConnectionStart] = React.useState<{
-    nodeId: string;
-    position: { x: number; y: number };
-  } | null>(null);
 
   // Keyboard event handlers
   React.useEffect(() => {
@@ -84,7 +89,7 @@ export const MindCanvas: React.FC<MindCanvasProps> = ({
     };
   }, []);
 
-  // Handle canvas panning
+  // Handle canvas panning and double-click to create nodes
   const handleMouseDown = (e: React.MouseEvent) => {
     if (e.target === e.currentTarget) {
       if (isSpacePressed) {
@@ -94,13 +99,24 @@ export const MindCanvas: React.FC<MindCanvasProps> = ({
     }
   };
 
+  const handleDoubleClick = (e: React.MouseEvent) => {
+    if (e.target === e.currentTarget) {
+      const rect = canvasRef.current?.getBoundingClientRect();
+      if (rect) {
+        const canvasX = (e.clientX - rect.left - viewport.x) / viewport.zoom;
+        const canvasY = (e.clientY - rect.top - viewport.y) / viewport.zoom;
+        onCreateNode("New Node", { x: canvasX, y: canvasY });
+      }
+    }
+  };
+
   const handleMouseMove = (e: React.MouseEvent) => {
     if (isPanning && panStart && isSpacePressed) {
-      setViewport((prev) => ({
-        ...prev,
+      onViewportChange({
+        ...viewport,
         x: e.clientX - panStart.x,
         y: e.clientY - panStart.y,
-      }));
+      });
     } else if (dragState.isDragging && dragState.nodeId && dragState.offset) {
       e.preventDefault();
       const rect = canvasRef.current?.getBoundingClientRect();
@@ -147,20 +163,20 @@ export const MindCanvas: React.FC<MindCanvasProps> = ({
         const mouseX = e.clientX - rect.left;
         const mouseY = e.clientY - rect.top;
 
-        setViewport((prev) => ({
-          ...prev,
+        onViewportChange({
+          ...viewport,
           zoom: newZoom,
-          x: mouseX - (mouseX - prev.x) * (newZoom / prev.zoom),
-          y: mouseY - (mouseY - prev.y) * (newZoom / prev.zoom),
-        }));
+          x: mouseX - (mouseX - viewport.x) * (newZoom / viewport.zoom),
+          y: mouseY - (mouseY - viewport.y) * (newZoom / viewport.zoom),
+        });
       }
     } else if (!isSpacePressed) {
       // Normal scroll - pan the viewport
-      setViewport((prev) => ({
-        ...prev,
-        x: prev.x - e.deltaX,
-        y: prev.y - e.deltaY,
-      }));
+      onViewportChange({
+        ...viewport,
+        x: viewport.x - e.deltaX,
+        y: viewport.y - e.deltaY,
+      });
     }
   };
 
@@ -252,23 +268,23 @@ export const MindCanvas: React.FC<MindCanvasProps> = ({
   }, []);
 
   return (
-    <div className="relative w-full h-full overflow-hidden bg-primary">
+    <div className="relative w-full h-full overflow-hidden bg-black">
       {/* Canvas Toolbar */}
       <CanvasToolbar
         viewport={viewport}
         onZoomIn={() =>
-          setViewport((prev) => ({
-            ...prev,
-            zoom: Math.min(3, prev.zoom * 1.2),
-          }))
+          onViewportChange({
+            ...viewport,
+            zoom: Math.min(3, viewport.zoom * 1.2),
+          })
         }
         onZoomOut={() =>
-          setViewport((prev) => ({
-            ...prev,
-            zoom: Math.max(0.1, prev.zoom / 1.2),
-          }))
+          onViewportChange({
+            ...viewport,
+            zoom: Math.max(0.1, viewport.zoom / 1.2),
+          })
         }
-        onResetView={() => setViewport({ x: 0, y: 0, zoom: 1 })}
+        onResetView={() => onViewportChange({ x: 0, y: 0, zoom: 1 })}
         onFitToScreen={() => {
           // Calculate bounds of all nodes and fit them in view
           if (nodes.length > 0) {
@@ -297,7 +313,7 @@ export const MindCanvas: React.FC<MindCanvasProps> = ({
               const scaleY = canvasRect.height / boundsHeight;
               const zoom = Math.min(scaleX, scaleY, 1);
 
-              setViewport({
+              onViewportChange({
                 x:
                   canvasRect.width / 2 - (bounds.minX + boundsWidth / 2) * zoom,
                 y:
@@ -315,11 +331,18 @@ export const MindCanvas: React.FC<MindCanvasProps> = ({
         ref={canvasRef}
         className="w-full h-full"
         style={{
-          cursor: isPanning ? "grabbing" : isSpacePressed ? "grab" : "default",
+          cursor: connectionState.isConnecting 
+            ? "crosshair" 
+            : isPanning 
+            ? "grabbing" 
+            : isSpacePressed 
+            ? "grab" 
+            : "default",
         }}
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
+        onDoubleClick={handleDoubleClick}
         onWheel={handleWheel}
         onContextMenu={(e) => handleContextMenu(e)}
       >
@@ -330,14 +353,16 @@ export const MindCanvas: React.FC<MindCanvasProps> = ({
             transform: `translate(${viewport.x}px, ${viewport.y}px) scale(${viewport.zoom})`,
           }}
         >
-          {/* Grid Background */}
+          {/* Grid Background - Black with white dots */}
           <div
-            className="absolute inset-0 opacity-20 grid-pattern"
+            className="absolute inset-0 opacity-30"
             style={{
               width: "5000px",
               height: "5000px",
               left: "-2500px",
               top: "-2500px",
+              backgroundImage: "radial-gradient(circle, rgba(255,255,255,0.2) 1px, transparent 1px)",
+              backgroundSize: "50px 50px",
             }}
           />
 
@@ -367,6 +392,18 @@ export const MindCanvas: React.FC<MindCanvasProps> = ({
                 />
               );
             })}
+
+            {/* Active connection preview */}
+            {connectionState.isConnecting && connectionState.fromPosition && (
+              <path
+                d={`M ${connectionState.fromPosition.x} ${connectionState.fromPosition.y} L ${connectionState.fromPosition.x + 50} ${connectionState.fromPosition.y + 50}`}
+                stroke="rgba(59, 130, 246, 0.8)"
+                strokeWidth="2"
+                fill="none"
+                strokeDasharray="5,5"
+                className="animate-pulse"
+              />
+            )}
           </svg>
 
           {/* Nodes */}
@@ -379,21 +416,13 @@ export const MindCanvas: React.FC<MindCanvasProps> = ({
               onDragStart={(e) => handleNodeDragStart(node.id, e)}
               onContextMenu={(e) => handleContextMenu(e, node.id)}
               isDragging={dragState.nodeId === node.id}
-              onConnectionStart={(nodeId, position) => {
-                setIsConnecting(true);
-                setConnectionStart({ nodeId, position });
-              }}
-              onConnectionEnd={(nodeId) => {
-                if (connectionStart && connectionStart.nodeId !== nodeId) {
-                  // Create new connection
-                  console.log(`Connect ${connectionStart.nodeId} to ${nodeId}`);
-                  // Here you would call a function to create the actual connection
-                }
-                setIsConnecting(false);
-                setConnectionStart(null);
-              }}
-              isConnecting={isConnecting}
-              connectionStart={connectionStart}
+              onConnectionStart={onConnectionStart}
+              onConnectionEnd={onConnectionEnd}
+              isConnecting={connectionState.isConnecting}
+              connectionStart={connectionState.fromNodeId ? {
+                nodeId: connectionState.fromNodeId,
+                position: connectionState.fromPosition || { x: 0, y: 0 }
+              } : null}
             />
           ))}
         </div>

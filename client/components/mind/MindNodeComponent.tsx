@@ -32,9 +32,10 @@ interface MindNodeComponentProps {
   isDragging: boolean;
   onConnectionStart?: (
     nodeId: string,
+    side: "top" | "bottom" | "left" | "right",
     position: { x: number; y: number },
   ) => void;
-  onConnectionEnd?: (nodeId: string) => void;
+  onConnectionEnd?: (nodeId: string, side: "top" | "bottom" | "left" | "right") => void;
   isConnecting?: boolean;
   connectionStart?: {
     nodeId: string;
@@ -69,7 +70,7 @@ export const MindNodeComponent: React.FC<MindNodeComponentProps> = ({
   const nodeRef = React.useRef<HTMLDivElement>(null);
   const IconComponent = getIconForNode(node);
 
-  const handleConnectionStart = (e: React.MouseEvent) => {
+  const handleConnectionStart = (e: React.MouseEvent, side: "top" | "bottom" | "left" | "right") => {
     e.stopPropagation();
     e.preventDefault();
     setIsConnecting(true);
@@ -80,14 +81,14 @@ export const MindNodeComponent: React.FC<MindNodeComponentProps> = ({
         x: rect.left + rect.width / 2,
         y: rect.top + rect.height / 2,
       };
-      onConnectionStart(node.id, position);
+      onConnectionStart(node.id, side, position);
     }
   };
 
-  const handleConnectionEnd = (e: React.MouseEvent) => {
+  const handleConnectionEnd = (e: React.MouseEvent, side: "top" | "bottom" | "left" | "right") => {
     e.stopPropagation();
     if (globalIsConnecting && onConnectionEnd) {
-      onConnectionEnd(node.id);
+      onConnectionEnd(node.id, side);
     }
     setIsConnecting(false);
   };
@@ -127,12 +128,12 @@ export const MindNodeComponent: React.FC<MindNodeComponentProps> = ({
         }}
         onClick={onSelect}
         onContextMenu={onContextMenu}
-        onMouseUp={handleConnectionEnd}
+        onMouseUp={(e) => handleConnectionEnd(e, "bottom")}
       >
         {/* Breadcrumb Trail - appears on hover */}
         {showBreadcrumb && (
           <div
-            className="absolute -top-8 left-0 bg-secondary text-primary text-xs px-2 py-1 rounded-md border border-border whitespace-nowrap z-20 animate-fade-in backdrop-blur-sm"
+            className="absolute -top-8 left-0 bg-secondary/90 text-visible text-xs px-2 py-1 rounded-md border border-border whitespace-nowrap z-20 animate-fade-in backdrop-blur-md"
           >
             {node.breadcrumb}
           </div>
@@ -151,10 +152,10 @@ export const MindNodeComponent: React.FC<MindNodeComponentProps> = ({
           <div className="flex items-start justify-between mb-2">
             <div className="flex items-center space-x-2 flex-1 min-w-0">
               <div className="flex-shrink-0">
-                <IconComponent className="h-4 w-4 text-gray-300" />
+                <IconComponent className="h-4 w-4 text-muted-foreground" />
               </div>
               <h3
-                className="font-medium text-primary text-sm leading-tight truncate whitespace-pre-wrap"
+                className="font-medium text-visible text-sm leading-tight truncate whitespace-pre-wrap"
               >
                 {node.title}
               </h3>
@@ -173,7 +174,7 @@ export const MindNodeComponent: React.FC<MindNodeComponentProps> = ({
                       onOpenSidebar();
                     }}
                   >
-                    <ExternalLink className="h-3 w-3 text-gray-400" />
+                    <ExternalLink className="h-3 w-3 text-muted-foreground" />
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent>Open in sidebar</TooltipContent>
@@ -190,7 +191,7 @@ export const MindNodeComponent: React.FC<MindNodeComponentProps> = ({
                       onContextMenu(e);
                     }}
                   >
-                    <MoreHorizontal className="h-3 w-3 text-gray-400" />
+                    <MoreHorizontal className="h-3 w-3 text-muted-foreground" />
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent>More options</TooltipContent>
@@ -200,7 +201,7 @@ export const MindNodeComponent: React.FC<MindNodeComponentProps> = ({
 
           {/* Content */}
           {node.content && (
-            <p className="text-gray-300 text-xs leading-relaxed mb-3 line-clamp-3">
+            <p className="text-secondary-visible text-xs leading-relaxed mb-3 line-clamp-3">
               {node.content}
             </p>
           )}
@@ -212,7 +213,7 @@ export const MindNodeComponent: React.FC<MindNodeComponentProps> = ({
                 <Badge
                   key={index}
                   variant="outline"
-                  className="text-xs px-1.5 py-0.5 bg-secondary/50 border-border/50 text-primary"
+                  className="text-xs px-1.5 py-0.5 bg-secondary/70 border-border text-visible"
                 >
                   {tag}
                 </Badge>
@@ -226,13 +227,13 @@ export const MindNodeComponent: React.FC<MindNodeComponentProps> = ({
               {node.collaborators.slice(0, 3).map((collaborator) => (
                 <Tooltip key={collaborator.id}>
                   <TooltipTrigger asChild>
-                    <Avatar className="h-5 w-5 border border-gray-600/50">
+                    <Avatar className="h-5 w-5 border border-border">
                       <AvatarFallback
                         className={cn(
                           "text-xs font-medium",
                           collaborator.isActive
                             ? "bg-green-600 text-white"
-                            : "bg-secondary text-primary",
+                            : "bg-secondary text-visible",
                         )}
                       >
                         {collaborator.avatar}
@@ -251,8 +252,8 @@ export const MindNodeComponent: React.FC<MindNodeComponentProps> = ({
               ))}
 
               {node.collaborators.length > 3 && (
-                <div className="h-5 w-5 bg-secondary border border-border/50 rounded-full flex items-center justify-center">
-                  <span className="text-xs text-primary font-medium">
+                <div className="h-5 w-5 bg-secondary border border-border rounded-full flex items-center justify-center">
+                  <span className="text-xs text-visible font-medium">
                     +{node.collaborators.length - 3}
                   </span>
                 </div>
@@ -263,7 +264,7 @@ export const MindNodeComponent: React.FC<MindNodeComponentProps> = ({
             {node.collaborators.length > 0 && (
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <div className="flex items-center space-x-1 text-gray-400">
+                  <div className="flex items-center space-x-1 text-muted-foreground">
                     <Users className="h-3 w-3" />
                     <span className="text-xs">{node.collaborators.length}</span>
                   </div>
@@ -295,15 +296,15 @@ export const MindNodeComponent: React.FC<MindNodeComponentProps> = ({
           {isHovered && !globalIsConnecting && (
             <Tooltip>
               <TooltipTrigger asChild>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="metallic-button absolute -top-2 -right-2 h-6 w-6 p-0 text-white hover:glow-blue transition-all duration-200 z-10"
-                  onMouseDown={handleConnectionStart}
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <Plus className="h-3 w-3" />
-                </Button>
+                                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="metallic-button absolute -top-2 -right-2 h-6 w-6 p-0 text-white hover:glow-blue transition-all duration-200 z-10"
+                    onMouseDown={(e) => handleConnectionStart(e, "right")}
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <Plus className="h-3 w-3" />
+                  </Button>
               </TooltipTrigger>
               <TooltipContent>
                 Click and hold to connect to another node
@@ -316,22 +317,26 @@ export const MindNodeComponent: React.FC<MindNodeComponentProps> = ({
             <>
               <div
                 className="absolute -top-1 left-1/2 w-3 h-3 bg-blue-500 rounded-full transform -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity cursor-crosshair z-10 hover:bg-blue-400"
-                onMouseDown={handleConnectionStart}
+                onMouseDown={(e) => handleConnectionStart(e, "top")}
+                onMouseUp={(e) => handleConnectionEnd(e, "top")}
                 title="Drag to connect"
               />
               <div
                 className="absolute -bottom-1 left-1/2 w-3 h-3 bg-blue-500 rounded-full transform -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity cursor-crosshair z-10 hover:bg-blue-400"
-                onMouseDown={handleConnectionStart}
+                onMouseDown={(e) => handleConnectionStart(e, "bottom")}
+                onMouseUp={(e) => handleConnectionEnd(e, "bottom")}
                 title="Drag to connect"
               />
               <div
                 className="absolute top-1/2 -left-1 w-3 h-3 bg-blue-500 rounded-full transform -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity cursor-crosshair z-10 hover:bg-blue-400"
-                onMouseDown={handleConnectionStart}
+                onMouseDown={(e) => handleConnectionStart(e, "left")}
+                onMouseUp={(e) => handleConnectionEnd(e, "left")}
                 title="Drag to connect"
               />
               <div
                 className="absolute top-1/2 -right-1 w-3 h-3 bg-blue-500 rounded-full transform -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity cursor-crosshair z-10 hover:bg-blue-400"
-                onMouseDown={handleConnectionStart}
+                onMouseDown={(e) => handleConnectionStart(e, "right")}
+                onMouseUp={(e) => handleConnectionEnd(e, "right")}
                 title="Drag to connect"
               />
             </>

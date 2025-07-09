@@ -159,6 +159,26 @@ const Mind = () => {
   const [sidebarOpen, setSidebarOpen] = React.useState(false);
   const [quickCreateOpen, setQuickCreateOpen] = React.useState(false);
 
+  // Canvas viewport state
+  const [viewport, setViewport] = React.useState({
+    x: 0,
+    y: 0,
+    zoom: 1,
+  });
+
+  // Connection state
+  const [connectionState, setConnectionState] = React.useState<{
+    isConnecting: boolean;
+    fromNodeId: string | null;
+    fromSide: "top" | "bottom" | "left" | "right" | null;
+    fromPosition: { x: number; y: number } | null;
+  }>({
+    isConnecting: false,
+    fromNodeId: null,
+    fromSide: null,
+    fromPosition: null,
+  });
+
   // Global keyboard shortcuts
   React.useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -166,11 +186,39 @@ const Mind = () => {
         e.preventDefault();
         setQuickCreateOpen(true);
       }
+      
+      // Escape key to cancel connection
+      if (e.key === "Escape" && connectionState.isConnecting) {
+        setConnectionState({
+          isConnecting: false,
+          fromNodeId: null,
+          fromSide: null,
+          fromPosition: null,
+        });
+      }
+
+      // Space + mouse for panning
+      if (e.code === "Space") {
+        e.preventDefault();
+        document.body.style.cursor = "grab";
+      }
+    };
+
+    const handleKeyUp = (e: KeyboardEvent) => {
+      if (e.code === "Space") {
+        document.body.style.cursor = "default";
+      }
     };
 
     window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, []);
+    window.addEventListener("keyup", handleKeyUp);
+    
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener("keyup", handleKeyUp);
+      document.body.style.cursor = "default";
+    };
+  }, [connectionState.isConnecting]);
 
   const handleNodeUpdate = (nodeId: string, updates: Partial<MindNode>) => {
     setNodes((prev) =>
@@ -196,7 +244,10 @@ const Mind = () => {
       title,
       content: "",
       tags: [],
-      position: position || { x: 400, y: 300 },
+      position: position || { 
+        x: 400 - viewport.x, 
+        y: 300 - viewport.y 
+      },
       size: { width: 240, height: 100 },
       collaborators: [{ id: "1", name: "Alex", avatar: "A", isActive: true }],
       breadcrumb: "Alex's Mind > New",
@@ -229,25 +280,71 @@ const Mind = () => {
     }
   };
 
+  const handleConnectionStart = (
+    nodeId: string,
+    side: "top" | "bottom" | "left" | "right",
+    position: { x: number; y: number }
+  ) => {
+    setConnectionState({
+      isConnecting: true,
+      fromNodeId: nodeId,
+      fromSide: side,
+      fromPosition: position,
+    });
+  };
+
+  const handleConnectionEnd = (nodeId: string, side: "top" | "bottom" | "left" | "right") => {
+    if (
+      connectionState.isConnecting &&
+      connectionState.fromNodeId &&
+      connectionState.fromNodeId !== nodeId
+    ) {
+      const newConnection: Connection = {
+        id: `connection-${Date.now()}`,
+        fromNodeId: connectionState.fromNodeId,
+        toNodeId: nodeId,
+        fromSide: connectionState.fromSide || "right",
+        toSide: side,
+      };
+
+      setConnections((prev) => [...prev, newConnection]);
+    }
+
+    // Reset connection state
+    setConnectionState({
+      isConnecting: false,
+      fromNodeId: null,
+      fromSide: null,
+      fromPosition: null,
+    });
+  };
+
+  const handleViewportChange = (newViewport: { x: number; y: number; zoom: number }) => {
+    setViewport(newViewport);
+  };
+
   const selectedNode = selectedNodeId
     ? nodes.find((n) => n.id === selectedNodeId)
     : null;
 
   return (
     <MainLayout>
-      <div
-        className="relative h-full w-full bg-primary overflow-hidden grid-pattern"
-      >
+      <div className="relative h-full w-full bg-black overflow-hidden mind-canvas-pattern">
         {/* Main Canvas */}
         <MindCanvas
           nodes={nodes}
           connections={connections}
+          viewport={viewport}
+          connectionState={connectionState}
           onNodeUpdate={handleNodeUpdate}
           onNodeSelect={handleNodeSelect}
           onNodeOpenSidebar={handleNodeOpenSidebar}
           onDeleteNode={handleDeleteNode}
           onDuplicateNode={handleDuplicateNode}
           onCreateNode={handleCreateNode}
+          onConnectionStart={handleConnectionStart}
+          onConnectionEnd={handleConnectionEnd}
+          onViewportChange={handleViewportChange}
         />
 
         {/* Mind Node Sidebar */}
@@ -268,6 +365,14 @@ const Mind = () => {
           onClose={() => setQuickCreateOpen(false)}
           onCreateNode={handleCreateNode}
         />
+
+        {/* Canvas Instructions */}
+        <div className="absolute bottom-4 left-4 glass-blur rounded-lg p-3 text-xs text-muted-visible space-y-1">
+          <div>• Hold <kbd className="px-1 py-0.5 bg-secondary rounded text-visible font-mono text-xs">Space</kbd> + Drag to pan</div>
+          <div>• Click connection points to link nodes</div>
+          <div>• Double-click empty space to create node</div>
+          <div>• <kbd className="px-1 py-0.5 bg-secondary rounded text-visible font-mono text-xs">Cmd+Shift+K</kbd> for quick create</div>
+        </div>
       </div>
     </MainLayout>
   );
